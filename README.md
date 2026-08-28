@@ -2,6 +2,16 @@
 
 A single-page JLPT N4 kanji study app with spaced repetition, drills, and reading passages.
 
+## Live app
+
+**https://htmlpreview.github.io/?https://raw.githubusercontent.com/trivituso81/kanji/main/index.html**
+
+After [GitHub Pages is enabled](https://github.com/trivituso81/kanji/settings/pages) (Source: **GitHub Actions**), the app will also be at:
+
+**https://trivituso81.github.io/kanji/**
+
+## Local
+
 Open `index.html` in a browser, or serve locally:
 
 ```bash
