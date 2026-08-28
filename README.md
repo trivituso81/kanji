@@ -4,15 +4,9 @@ A single-page JLPT N4 kanji study app with spaced repetition, drills, and readin
 
 ## Live app
 
-**https://htmlpreview.github.io/?https://raw.githubusercontent.com/trivituso81/kanji/main/index.html**
+**https://trivituso81.github.io/kanji/** (enable [GitHub Pages](https://github.com/trivituso81/kanji/settings/pages) → branch `gh-pages` if not live yet)
 
-For the permanent URL, enable GitHub Pages once:
-
-1. Open [Settings → Pages](https://github.com/trivituso81/kanji/settings/pages)
-2. Set **Source** to **Deploy from a branch**
-3. Choose branch **`gh-pages`**, folder **`/ (root)`**
-
-The app will be at **https://trivituso81.github.io/kanji/** (CI pushes to `gh-pages` automatically on every change to `main`).
+Open the app directly — do not use HTML preview wrappers; they break audio. After the first visit, **reload once** so the audio proxy service worker activates.
 
 ## Local
 
