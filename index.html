@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
 <title>N4 漢字 Mastery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Klee+One:wght@400;600&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
@@ -1886,7 +1887,7 @@ function toggleAll(btn,id){
 }
 
 /* ===== speech (Google Translate TTS, Web Speech fallback) ===== */
-let VOJA=null,audioEl=null,sayToken=0;
+let VOJA=null,audioEl=null,sayToken=0,objUrl=null;
 function pickVoice(){try{const vs=speechSynthesis.getVoices();VOJA=vs.find(v=>/^ja/i.test(v.lang)&&/Kyoko|O-?Ren|Google 日本語|Otoya/i.test(v.name))||vs.find(v=>/^ja/i.test(v.lang))||null}catch(e){}}
 if(typeof speechSynthesis!=='undefined'){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
 function toast(t){
@@ -1895,8 +1896,25 @@ function toast(t){
   el.textContent=t;el.classList.add('on');
   clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600);
 }
-function gTtsUrl(text){
-  return 'https://translate.google.com/translate_tts?ie=UTF-8&client=gtx&tl=ja&dt=t&q='+encodeURIComponent(text);
+function gTtsUrls(text){
+  const q=encodeURIComponent(text);
+  const google=[
+    'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q='+q,
+    'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q='+q
+  ];
+  if(typeof navigator!=='undefined'&&navigator.serviceWorker&&navigator.serviceWorker.controller)
+    return [appBase()+'tts?q='+q,...google];
+  return google;
+}
+function appBase(){
+  let p=location.pathname;
+  if(p.endsWith('/'))return p;
+  if(/\.html$/i.test(p))return p.slice(0,p.lastIndexOf('/')+1);
+  return p+'/';
+}
+function registerSw(){
+  if(!('serviceWorker' in navigator))return Promise.resolve();
+  return navigator.serviceWorker.register(appBase()+'sw.js',{scope:appBase()}).catch(()=>{});
 }
 function splitTts(text,max){
   max=max||180;
@@ -1918,6 +1936,7 @@ function splitTts(text,max){
 function stopSpeech(){
   sayToken++;
   if(audioEl){audioEl.pause();audioEl.onended=null;audioEl.onerror=null;audioEl=null}
+  if(objUrl){URL.revokeObjectURL(objUrl);objUrl=null}
   if(typeof speechSynthesis!=='undefined')try{speechSynthesis.cancel()}catch(e){}
 }
 function sayFallback(t){
@@ -1929,13 +1948,49 @@ function sayFallback(t){
     speechSynthesis.speak(u);
   }catch(e){toast('Audio is not available here.')}
 }
-function playGttsChunks(chunks,token,i){
-  if(token!==sayToken||i>=chunks.length)return;
-  const url=gTtsUrl(chunks[i]);
-  audioEl=new Audio(url);
-  audioEl.onended=()=>{if(token===sayToken)playGttsChunks(chunks,token,i+1)};
-  audioEl.onerror=()=>{if(token===sayToken)sayFallback(chunks.slice(i).join(''))};
-  audioEl.play().catch(()=>{if(token===sayToken)sayFallback(chunks.slice(i).join(''))});
+function playAudioEl(a,token){
+  return new Promise((resolve,reject)=>{
+    if(token!==sayToken)return resolve();
+    audioEl=a;
+    a.referrerPolicy='no-referrer';
+    let settled=false;
+    const done=()=>{if(settled)return;settled=true;clearTimeout(timer);if(token===sayToken)resolve()};
+    const fail=()=>{if(settled)return;settled=true;clearTimeout(timer);if(token!==sayToken)resolve();else reject(new Error('audio'))};
+    const timer=setTimeout(fail,8000);
+    a.onended=done;
+    a.onerror=fail;
+    const start=()=>a.play().catch(fail);
+    if(a.readyState>=2)start();
+    else{a.oncanplaythrough=()=>{a.oncanplaythrough=null;start()};a.load()}
+  });
+}
+async function playGttsUrl(url,token){
+  const a=new Audio();
+  a.src=url;
+  await playAudioEl(a,token);
+  return true;
+}
+async function playGttsText(text,token){
+  const urls=gTtsUrls(text);
+  let lastErr=null;
+  for(const url of urls){
+    if(token!==sayToken)return false;
+    try{return await playGttsUrl(url,token)}catch(e){lastErr=e}
+  }
+  throw lastErr||new Error('tts failed');
+}
+async function speakGoogle(text,token){
+  const chunks=splitTts(text);
+  try{
+    for(const chunk of chunks){
+      if(token!==sayToken)return;
+      await playGttsText(chunk,token);
+    }
+  }catch(e){
+    if(token!==sayToken)return;
+    toast('Google音声が使えません。広告ブロッカーをオフにしてください。');
+    sayFallback(text);
+  }
 }
 function say(t){
   if(!t)return;
@@ -1943,7 +1998,7 @@ function say(t){
   if(!text)return;
   stopSpeech();
   const token=sayToken;
-  playGttsChunks(splitTts(text),token,0);
+  speakGoogle(text,token);
 }
 
 /* ===== glyph font styles ===== */
@@ -2340,7 +2395,7 @@ function vSettings(){
   '<textarea class="io" id="io" placeholder="Export fills this box. To import, paste a backup here and press Import."></textarea>'+
   '<div class="notice" id="ionote">Progress saves automatically in this browser. Export gives you a text backup you can paste back in anywhere.</div>'+
   '<div style="height:10px"></div><button class="bigbtn" style="background:var(--crimson);box-shadow:5px 5px 0 var(--ink)" id="resetbtn" onclick="APP.doReset()">Reset all progress</button></div>'+
-  '<div class="panel"><h2>この アプリ About</h2><div class="notice">188 kanji following the widely used community N4 list. The JLPT has not published official kanji lists since 2010, so every N4 list is an approximation.<br><br>Reading first: this app covers recognition, readings, meaning, and context only. There is no stroke order and no writing practice anywhere, by design.<br><br>The style toggle on each kanji page switches every large glyph between Gothic, Mincho, and Textbook style. Textbook style is the closest to handwritten forms, so it is worth reading all three.<br><br>Audio uses Google Translate text-to-speech for natural Japanese pronunciation when you tap words or sentences. An internet connection is required. If audio fails, the app falls back to your device voice.<br><br>Depth 0 to 5 per kanji combines flashcard spacing with drill accuracy across meaning, reading, vocabulary, and context. Mastered means long intervals and 90 percent accuracy over many attempts.</div></div>';
+  '<div class="panel"><h2>この アプリ About</h2><div class="notice">188 kanji following the widely used community N4 list. The JLPT has not published official kanji lists since 2010, so every N4 list is an approximation.<br><br>Reading first: this app covers recognition, readings, meaning, and context only. There is no stroke order and no writing practice anywhere, by design.<br><br>The style toggle on each kanji page switches every large glyph between Gothic, Mincho, and Textbook style. Textbook style is the closest to handwritten forms, so it is worth reading all three.<br><br>Audio uses Google Translate text-to-speech through a same-origin proxy for natural Japanese pronunciation when you tap words, readings, or the Speak button. An internet connection is required. If Google audio is blocked, the app falls back to your device voice.<br><br>Depth 0 to 5 per kanji combines flashcard spacing with drill accuracy across meaning, reading, vocabulary, and context. Mastered means long intervals and 90 percent accuracy over many attempts.</div></div>';
 }
 APP.step=function(d){P.settings.newPerDay=Math.min(20,Math.max(2,P.settings.newPerDay+d));save();render()};
 APP.doExport=function(){document.getElementById('io').value=JSON.stringify(P);document.getElementById('ionote').textContent='Copied into the box. Select all and copy it somewhere safe.'};
@@ -2389,6 +2444,7 @@ window.addEventListener('hashchange',render);
   }catch(e){}
   if(!P.settings.glyphFont)P.settings.glyphFont='gothic';
   applyFont();
+  registerSw();
   if(!location.hash)location.hash='#/home';
   render();
 })();

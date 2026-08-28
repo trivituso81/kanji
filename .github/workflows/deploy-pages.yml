@@ -21,6 +21,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/
+          cp sw.js _site/
           touch _site/.nojekyll
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
