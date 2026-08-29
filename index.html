@@ -1882,8 +1882,50 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function kunDisp(s){const i=s.indexOf('.');return i<0?esc(s):esc(s.slice(0,i))+'<span class="oku">・'+esc(s.slice(i+1))+'</span>'}
+/* Attach okurigana after {kanji|reading} so 働いています taps/speaks as one word; leave particles alone. */
+const FURI_SOLO_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','で','と','も','へ','や','か','の','ね','よ','な','ぞ','さ','わ'];
+const FURI_STRIP_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','も','へ','や','か','の','ね','よ','な','ぞ','さ','わ','と'];
+function furiParticleOnly(s){
+  let i=0;
+  while(i<s.length){
+    let hit=null;
+    for(const p of FURI_SOLO_PART){if(s.startsWith(p,i)){hit=p;break}}
+    if(!hit)return false;
+    i+=hit.length;
+  }
+  return s.length>0;
+}
+function furiStripParticles(s){
+  let changed=true;
+  while(changed&&s){
+    changed=false;
+    for(const p of FURI_STRIP_PART){
+      if(s.endsWith(p)){s=s.slice(0,-p.length);changed=true;break}
+    }
+  }
+  return s;
+}
+function absorbOkuri(after){
+  const m=after.match(/^([\u3040-\u309F\u30A0-\u30FFーゝゞヽヾ]+)/);
+  if(!m)return '';
+  const h=m[1];
+  if(h==='ご'||h==='お')return '';
+  if(furiParticleOnly(h))return '';
+  return furiStripParticles(h);
+}
 function furiHTML(markup){
-  return esc(markup).replace(/\{([^|]+)\|([^}]+)\}/g,(_,a,b)=>'<span class="w" data-say="'+esc(a)+'" onclick="APP.tapWord(this)"><ruby>'+a+'<rt>'+b+'</rt></ruby></span>')
+  let out='',i=0,m;
+  const re=/\{([^|]+)\|([^}]+)\}/g;
+  while((m=re.exec(markup))){
+    out+=esc(markup.slice(i,m.index));
+    const okuri=absorbOkuri(markup.slice(m.index+m[0].length));
+    const base=m[1],reading=m[2],full=base+okuri;
+    out+='<span class="w" data-say="'+esc(full)+'" onclick="APP.tapWord(this)"><ruby>'+esc(base)+'<rt>'+esc(reading)+'</rt></ruby>'+esc(okuri)+'</span>';
+    i=m.index+m[0].length+okuri.length;
+    re.lastIndex=i;
+  }
+  out+=esc(markup.slice(i));
+  return out;
 }
 function kanaOf(markup){return markup.replace(/\{([^|]+)\|([^}]+)\}/g,'$2')}
 function plainSent(markup){return markup.replace(/\{([^|]+)\|([^}]+)\}/g,'$1')}
