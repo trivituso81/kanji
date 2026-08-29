@@ -22,8 +22,8 @@
   --ink:#16161F; --paper:#FBF7F0; --card:#FFFFFF;
   --teal:#0FA3A3; --teal-deep:#0B7C7C; --teal-lt:#4FC3BD;
   --crimson:#E23D4E; --orange:#F59E0B; --gray:#C4C9CF; --gray-dk:#8B929B;
-  --gold:#1E4D8C;
-  --depth0:#C4C9CF; --depth1:#F59E0B; --depth2:#E23D4E; --depth3:#3B9EFF; --depth4:#0FA3A3; --depth5:#1E4D8C;
+  --gold:#F5C518;
+  --depth0:#C4C9CF; --depth1:#E23D4E; --depth2:#F59E0B; --depth3:#F5C518; --depth4:#22A06B; --depth5:#3B9EFF;
   --grad:linear-gradient(135deg,#FFD6E0 0%,#BFD9FF 100%);
   --grad2:linear-gradient(135deg,#FFE9EF 0%,#DCEBFF 100%);
   --sans:'Outfit','Avenir Next','Segoe UI','Hiragino Sans','Yu Gothic',system-ui,sans-serif;
@@ -1845,7 +1845,7 @@ function today(){return Math.floor(Date.now()/864e5)}
 /* ===== data index ===== */
 const MAP={};DATA.forEach(d=>MAP[d.k]=d);
 const ALLK=DATA.map(d=>d.k);
-const DCOL=['#C4C9CF','#F59E0B','#E23D4E','#3B9EFF','#0FA3A3','#1E4D8C'];
+const DCOL=['#C4C9CF','#E23D4E','#F59E0B','#F5C518','#22A06B','#3B9EFF'];
 const DLBL=['0 New','1 Seen','2 Learning','3 Known','4 Strong','5 Mastered'];
 function inDeck(k){return !!MAP[k]}
 
