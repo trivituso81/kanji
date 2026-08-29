@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>N4 漢字</title>
+<meta name="application-name" content="N4 漢字">
+<meta name="apple-mobile-web-app-title" content="N4 漢字">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#0FA3A3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Klee+One:wght@400;600&family=Noto+Serif+JP:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16161F; --paper:#FBF7F0; --card:#FFFFFF;
+  --teal:#0FA3A3; --teal-deep:#0B7C7C; --teal-lt:#4FC3BD;
+  --crimson:#E23D4E; --orange:#F59E0B; --gray:#C4C9CF; --gray-dk:#8B929B;
+  --gold:#D4A017;
+  --grad:linear-gradient(135deg,#FFD6E0 0%,#BFD9FF 100%);
+  --grad2:linear-gradient(135deg,#FFE9EF 0%,#DCEBFF 100%);
+  --sans:'Outfit','Avenir Next','Segoe UI','Hiragino Sans','Yu Gothic',system-ui,sans-serif;
+  --jp:'Hiragino Sans','Yu Gothic','Meiryo',sans-serif;
+  --jpserif:'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','MS Mincho',serif;
+  --f-gothic:'Hiragino Sans','Yu Gothic Medium','Yu Gothic','Meiryo','Noto Sans JP',sans-serif;
+  --f-mincho:'Hiragino Mincho ProN','Yu Mincho','Noto Serif JP','MS Mincho',serif;
+  --f-kyokasho:'Klee One','YuKyokasho','YuKyokasho Yoko','UD デジタル 教科書体 N-R','UD Digital Kyokasho N-R','Hiragino Mincho ProN',serif;
+  --glyphfont:var(--f-gothic);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.5;padding-bottom:84px;
+  background-image:radial-gradient(rgba(22,22,31,.045) 1px,transparent 1px);background-size:22px 22px}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+#app{max-width:720px;margin:0 auto;padding:16px 14px 24px}
+.jp{font-family:var(--jp)}
+
+/* ---------- Panels: thick ink borders + offset shadows ---------- */
+.panel{background:var(--card);border:3px solid var(--ink);border-radius:14px;
+  box-shadow:5px 5px 0 var(--teal);padding:16px;margin-bottom:18px}
+.panel.crim{box-shadow:5px 5px 0 var(--crimson)}
+.panel.grad{background:var(--grad)}
+.panel.flat{box-shadow:none}
+.tile{display:block;width:100%;text-align:left;background:var(--grad);border:3px solid var(--ink);
+  border-radius:14px;box-shadow:5px 5px 0 var(--teal);padding:16px;margin-bottom:16px;
+  transition:transform .08s,box-shadow .08s}
+.tile:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--teal)}
+.tile.crim{box-shadow:5px 5px 0 var(--crimson)}
+.tile.crim:active{box-shadow:2px 2px 0 var(--crimson)}
+.tile h3{font-size:1.05rem;font-weight:800;letter-spacing:.01em}
+.tile .sub{font-size:.82rem;color:#3A3A46;margin-top:2px}
+
+/* ---------- Type ---------- */
+h1{font-size:1.5rem;font-weight:900;letter-spacing:-.01em}
+h2{font-size:1.15rem;font-weight:800;margin-bottom:10px}
+.eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--crimson)}
+.muted{color:#6A6F78;font-size:.85rem}
+.small{font-size:.8rem}
+
+/* ---------- Header ---------- */
+.apphead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.apphead .brand{display:flex;align-items:baseline;gap:8px}
+.apphead .brand .n4{background:var(--ink);color:#fff;border-radius:8px;padding:2px 8px;font-weight:900;font-size:1.05rem}
+.backbtn{font-weight:800;font-size:.9rem;border:3px solid var(--ink);border-radius:10px;padding:6px 12px;
+  background:#fff;box-shadow:3px 3px 0 var(--ink)}
+.backbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+
+/* ---------- Bottom nav ---------- */
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:3px solid var(--ink);
+  display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:50}
+nav button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.68rem;font-weight:700;
+  color:var(--gray-dk);padding:4px 10px;border-radius:10px}
+nav button .ic{font-size:1.25rem;line-height:1.2;font-family:var(--jp)}
+nav button.on{color:var(--ink);background:var(--grad2);border:2px solid var(--ink)}
+
+/* ---------- Depth colors ---------- */
+.d0{background:var(--gray)} .d1{background:var(--orange)} .d2{background:var(--teal-lt)}
+.d3{background:var(--teal)} .d4{background:var(--teal-deep)} .d5{background:var(--gold)}
+.t0{color:var(--gray-dk)} .t1{color:var(--orange)} .t2{color:var(--teal-lt)}
+.t3{color:var(--teal)} .t4{color:var(--teal-deep)} .t5{color:var(--gold)}
+
+/* ---------- Stacked horizontal bar ---------- */
+.stackbar{display:flex;height:22px;border:3px solid var(--ink);border-radius:9px;overflow:hidden;background:#fff}
+.stackbar div{height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:8px;font-size:.72rem;font-weight:700}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border:2px solid var(--ink);border-radius:4px;display:inline-block}
+
+/* ---------- Kanji browse grid ---------- */
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px}
+.kcell{position:relative;aspect-ratio:1;border:3px solid var(--ink);border-radius:12px;background:#fff;
+  font-family:var(--glyphfont);font-size:1.7rem;display:flex;align-items:center;justify-content:center;
+  box-shadow:3px 3px 0 var(--ink)}
+.kcell:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.kcell .dot{position:absolute;top:5px;right:5px;width:11px;height:11px;border:2px solid var(--ink);border-radius:50%}
+.kcell.pick{cursor:pointer;user-select:none;-webkit-user-select:none}
+.kcell.sel{background:var(--grad2);box-shadow:3px 3px 0 var(--teal-deep)}
+.kcell.dimsel{opacity:.42}
+.setpick .pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.setpick .pickcount{font-weight:900;font-size:1rem}
+.setpick .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:2.5px solid var(--ink);border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:800;background:#fff}
+.chip.on{background:var(--ink);color:#fff}
+.search{width:100%;border:3px solid var(--ink);border-radius:12px;padding:10px 14px;font-size:1rem;
+  font-family:var(--sans);background:#fff;margin-bottom:12px;box-shadow:3px 3px 0 var(--teal)}
+.search:focus{outline:3px solid var(--crimson);outline-offset:2px}
+
+/* ---------- Kanji detail hero ---------- */
+.hero{position:relative;background:var(--grad);border:3px solid var(--ink);border-radius:18px;
+  box-shadow:6px 6px 0 var(--crimson),12px 12px 0 var(--teal);padding:26px 16px 20px;margin:4px 8px 30px 0;text-align:center}
+.hero .glyph{cursor:pointer;font-family:var(--glyphfont);font-size:min(38vw,170px);line-height:1.05;font-weight:600}
+.hero .gloss{font-size:1.15rem;font-weight:800;margin-top:2px}
+.ringwrap{position:absolute;top:12px;right:12px;width:56px;height:56px}
+.ringwrap svg{width:56px;height:56px}
+.ringwrap .dnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:1.05rem}
+.readrow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.readpill{cursor:pointer;border:3px solid var(--ink);border-radius:999px;background:#fff;padding:5px 14px;font-weight:700;
+  font-family:var(--jp);font-size:.95rem}
+.readpill b{font-size:.66rem;font-weight:900;letter-spacing:.08em;margin-right:6px;color:var(--crimson)}
+.readpill.kun b{color:var(--teal-deep)}
+.readpill .oku{color:var(--gray-dk)}
+
+.fontrow{display:flex;gap:8px;justify-content:center;margin-top:14px}
+.fontrow .chip{font-size:.72rem;padding:5px 10px}
+.fontrow .chip small{display:block;font-size:.58rem;font-weight:700;opacity:.75}
+
+/* ---------- Detail sections ---------- */
+.sect{margin-bottom:18px}
+.sect .shead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sect .shead .sjp{font-family:var(--jp);font-weight:800;background:var(--ink);color:#fff;border-radius:8px;
+  padding:2px 9px;font-size:.85rem}
+.sect .shead .sen{font-weight:800;font-size:.95rem}
+.comp{display:flex;gap:10px;flex-wrap:wrap}
+.comp .c{border:3px solid var(--ink);border-radius:12px;background:#fff;padding:8px 12px;text-align:center;min-width:74px}
+.comp .c .cc{font-family:var(--glyphfont);font-size:1.9rem;line-height:1.2}
+.comp .c .cn{font-size:.7rem;font-weight:700;color:#555C66;margin-top:2px}
+.comp .c.rad{background:var(--grad2)}
+.comp .c.rad .tag{font-size:.6rem;font-weight:900;letter-spacing:.1em;color:var(--crimson)}
+.vlist .v{cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 2px;
+  border-bottom:2px dashed #D8D3C8}
+.vlist .v:last-child{border-bottom:none}
+.vlist .vw{font-family:var(--jp);font-size:1.2rem;font-weight:600}
+.vlist .vr{font-family:var(--jp);color:var(--teal-deep);font-weight:600;font-size:.9rem}
+.vlist .vg{color:#555C66;font-size:.85rem;text-align:right;flex:1}
+.simrow{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:2px dashed #D8D3C8}
+.simrow:last-child{border-bottom:none}
+.simrow .sk{font-family:var(--glyphfont);font-size:2.1rem;line-height:1.15;min-width:52px;text-align:center;
+  border:3px solid var(--ink);border-radius:12px;background:#fff;padding:4px 6px}
+.simrow .sn{font-size:.85rem;padding-top:2px}
+.simrow .sn .lvl{font-size:.62rem;font-weight:900;color:var(--crimson);letter-spacing:.08em}
+.sentbox{font-family:var(--jp);font-size:1.15rem;line-height:2.3;background:#fff;border:3px solid var(--ink);
+  border-radius:12px;padding:14px}
+.sentbox .en{display:block;font-family:var(--sans);font-size:.85rem;color:#555C66;line-height:1.4;margin-top:8px;
+  border-top:2px dashed #D8D3C8;padding-top:8px}
+ruby rt{font-size:.55em;color:var(--crimson);font-weight:600;opacity:0;transition:opacity .12s}
+ruby.show rt{opacity:1}
+.w{border-bottom:3px solid var(--teal-lt);padding-bottom:1px}
+.skillbars .sb{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.skillbars .sb .lbl{width:74px;font-size:.75rem;font-weight:800}
+.skillbars .sb .track{flex:1;height:14px;border:2.5px solid var(--ink);border-radius:7px;background:#fff;overflow:hidden}
+.skillbars .sb .fill{height:100%}
+.skillbars .sb .pct{width:40px;text-align:right;font-size:.72rem;font-weight:800;color:#555C66}
+.etybox{background:#fff;border:3px solid var(--ink);border-radius:12px;padding:14px;font-size:.92rem}
+.etybox .etype{display:inline-block;font-size:.66rem;font-weight:900;letter-spacing:.1em;background:var(--grad);
+  border:2px solid var(--ink);border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.mnbox{background:var(--grad2);border:3px solid var(--ink);border-radius:12px;padding:12px 14px;font-size:.92rem;margin-top:10px}
+.mnbox b{color:var(--crimson)}
+
+/* ---------- Buttons ---------- */
+.bigbtn{display:block;width:100%;text-align:center;font-weight:900;font-size:1rem;border:3px solid var(--ink);
+  border-radius:14px;padding:14px;background:var(--ink);color:#fff;box-shadow:5px 5px 0 var(--crimson);margin-bottom:14px}
+.bigbtn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--crimson)}
+.bigbtn.ghost{background:#fff;color:var(--ink);box-shadow:5px 5px 0 var(--teal)}
+.bigbtn.ghost:active{box-shadow:2px 2px 0 var(--teal)}
+.btnrow{display:flex;gap:12px}
+.btnrow .bigbtn{flex:1}
+
+/* ---------- Flashcards ---------- */
+.fcard{background:#fff;border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--teal);
+  min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;margin-bottom:18px;text-align:center}
+.fcard .big{font-family:var(--glyphfont);font-size:min(30vw,120px);line-height:1.1}
+.fcard .prompt{font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-dk);margin-bottom:10px}
+.fcard .ans{margin-top:14px;border-top:3px dashed #D8D3C8;padding-top:14px;width:100%}
+.grade{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.grade button{border:3px solid var(--ink);border-radius:12px;padding:12px 4px;font-weight:900;font-size:.82rem;
+  background:#fff;box-shadow:3px 3px 0 var(--ink)}
+.grade button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.grade .g0{background:#FADBD8}.grade .g1{background:#FDEBD0}.grade .g2{background:#D6F5F0}.grade .g3{background:#FDF3D0}
+.grade button i{display:block;font-style:normal;font-size:.62rem;font-weight:700;color:#555C66;margin-top:2px}
+.sessionbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:800;font-size:.85rem}
+.progress{flex:1;height:14px;border:3px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden;margin:0 12px}
+.progress div{height:100%;background:var(--teal)}
+
+/* ---------- Quiz ---------- */
+.qprompt{background:#fff;border:3px solid var(--ink);border-radius:16px;box-shadow:5px 5px 0 var(--crimson);
+  padding:20px 16px;text-align:center;margin-bottom:16px}
+.qprompt .qbig{font-family:var(--glyphfont);font-size:4rem;line-height:1.15}
+.qprompt .qword{font-family:var(--jp);font-size:2rem;font-weight:600}
+.qprompt .qtext{font-size:1rem;font-weight:700}
+.qprompt .qsent{font-family:var(--jp);font-size:1.15rem;line-height:2;text-align:left}
+.qprompt .qsub{font-size:.78rem;font-weight:700;color:var(--gray-dk);margin-top:6px}
+.opts{display:grid;gap:10px}
+.opts.two{grid-template-columns:1fr 1fr}
+.opt{border:3px solid var(--ink);border-radius:12px;background:#fff;padding:13px 12px;font-weight:700;font-size:1rem;
+  box-shadow:3px 3px 0 var(--ink);text-align:center}
+.opt.jpop{font-family:var(--jp);font-size:1.2rem}
+.opt:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.opt.right{background:#D6F5F0;border-color:var(--teal-deep);box-shadow:3px 3px 0 var(--teal-deep)}
+.opt.wrong{background:#FADBD8;border-color:var(--crimson);box-shadow:3px 3px 0 var(--crimson)}
+.opt.dim{opacity:.45}
+.feedback{margin-top:14px}
+.feedback .fb{border:3px solid var(--ink);border-radius:12px;padding:12px;font-size:.9rem;background:var(--grad2)}
+.result{ text-align:center;padding:26px 12px}
+.result .score{font-size:3.2rem;font-weight:900}
+
+/* ---------- Reading ---------- */
+.passage{font-family:var(--jp);font-size:1.12rem;line-height:2.4;background:#fff;border:3px solid var(--ink);
+  border-radius:14px;padding:16px;margin-bottom:16px}
+.ptitle{font-weight:800;font-size:1rem;margin-bottom:8px}
+.hint{font-size:.78rem;color:var(--gray-dk);font-weight:700;margin-bottom:10px}
+
+/* ---------- Home stats ---------- */
+.statrow{display:flex;gap:12px;margin-bottom:16px}
+.stat{flex:1;background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);
+  padding:12px 8px;text-align:center}
+.stat .n{font-size:1.7rem;font-weight:900;line-height:1.1}
+.stat .l{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#555C66;margin-top:2px}
+.duebadge{display:inline-block;background:var(--crimson);color:#fff;border:2.5px solid var(--ink);border-radius:999px;
+  padding:2px 10px;font-size:.75rem;font-weight:900;margin-left:8px}
+
+/* ---------- Settings ---------- */
+.setrow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:2px dashed #D8D3C8}
+.setrow:last-child{border-bottom:none}
+.stepper{display:flex;align-items:center;gap:10px}
+.stepper button{width:38px;height:38px;border:3px solid var(--ink);border-radius:10px;background:#fff;font-weight:900;
+  font-size:1.1rem;box-shadow:2px 2px 0 var(--ink)}
+.stepper span{font-weight:900;min-width:28px;text-align:center}
+textarea.io{width:100%;height:110px;border:3px solid var(--ink);border-radius:12px;padding:10px;font-size:.75rem;
+  font-family:monospace;background:#fff;margin-top:10px}
+.notice{font-size:.78rem;color:#555C66;margin-top:8px;line-height:1.45}
+
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);background:var(--ink);color:#fff;
+  border-radius:12px;padding:10px 16px;font-size:.8rem;font-weight:700;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s;z-index:99;max-width:86%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (min-width:560px){
+  .kgrid{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+  .hero .glyph{font-size:190px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav id="nav"></nav>
+<script>
+const DATA=[];
+function K(k,m,on,kun,rad,comps,etype,ety,mn,voc,sim,sent){
+  DATA.push({k,m,on,kun,rad,comps,etype,ety,mn,voc,sim,sent});
+}
+
+K("不",["not","un-","non-"],["フ","ブ"],[],"一|one",[["一","one"],["丆","calyx shape"]],
+"象形 pictograph",
+"Originally a drawing of a flower calyx (or in another account, a bird soaring up and not coming down). The character was borrowed very early purely for its sound to write the negative prefix, and the original meaning was lost.",
+"A bird flies up and will <b>not</b> come back down.",
+[["不便","ふべん","inconvenient"],["不安","ふあん","uneasy, anxious"],["不足","ふそく","shortage, not enough"]],
+[["未","(N3) not yet: an open top with two crossbars"],["下","below: a position marker, one stroke simpler"]],
+["この{町|まち}は{駅|えき}から{遠|とお}くて{不便|ふべん}です。","This town is far from the station and inconvenient."]);
+
+K("世",["world","generation","society"],["セ","セイ"],["よ"],"一|one",[["十","ten, three times"]],
+"会意 compound ideograph",
+"Three 十 (ten) joined together: thirty years, the span of one human generation. From one generation it extended to the succession of generations, and then to the whole world they live in.",
+"Three tens chained together: thirty years is one <b>generation</b> in this <b>world</b>.",
+[["世界","せかい","the world"],["世話","せわ","care, looking after"],["二世","にせい","second generation"]],
+[["土","earth: a simple cross on a base line"],["廿","(rare) twenty: the shape 世 grew from"]],
+["{世界|せかい}にはいろいろな{国|くに}があります。","There are all kinds of countries in the world."]);
+
+K("主",["main","master","lord"],["シュ"],["ぬし","おも"],"丶|dot",[["丶","flame"],["王","lamp stand"]],
+"象形 pictograph",
+"A lamp stand with a flame burning on top. The one who keeps the household flame lit is the master of the house, so the character came to mean master, owner, and main.",
+"The dot is the flame; the <b>master</b> of the house keeps it burning.",
+[["主人","しゅじん","husband; master"],["主婦","しゅふ","housewife"],["飼い主","かいぬし","pet owner"]],
+[["住","add a person: to live somewhere"],["注","add water: to pour"],["王","king, missing the flame on top"]],
+["ご{主人|しゅじん}はお{元気|げんき}ですか。","Is your husband doing well?"]);
+
+K("事",["thing","matter","affair"],["ジ"],["こと"],"亅|hook",[["口","record"],["ヨ","hand"]],
+"会意 compound ideograph",
+"A hand holding up a pole with a flag or written record: performing an official duty. From official business it broadened to affairs and matters in general, the abstract counterpart of 物 (physical things).",
+"A hand raising the record of official <b>matters</b>.",
+[["仕事","しごと","work, job"],["用事","ようじ","errand, business"],["食事","しょくじ","meal"],["大事","だいじ","important"]],
+[["字","character: a child under a roof"],["書","(N5) to write: shares the hand element"]],
+["{今日|きょう}は{仕事|しごと}のあとで{用事|ようじ}があります。","Today I have an errand after work."]);
+
+K("京",["capital"],["キョウ","ケイ"],[],"亠|lid",[["亠","roof"],["口","gate"],["小","pillars"]],
+"象形 pictograph",
+"A tall gate tower built on a hill, the kind that stood at the entrance of a capital city. Tall architecture marked the seat of power, so the drawing itself came to mean capital.",
+"A tall tower on stilts guards the <b>capital</b>.",
+[["東京","とうきょう","Tokyo"],["京都","きょうと","Kyoto"]],
+[["高","(N5) tall: the same tower with an extra box"],["景","(N3) scenery: sun over the capital"]],
+["{東京|とうきょう}から{京都|きょうと}まで{新幹線|しんかんせん}で{行|い}きました。","I went from Tokyo to Kyoto by bullet train."]);
+
+K("仕",["serve","do","work"],["シ"],["つか.える"],"亻|person",[["亻","person"],["士","scholar (sound シ)"]],
+"形声 phono-semantic",
+"A person 亻 plus 士, a scholar official, which also supplies the sound シ. A person in the role of an official serves, and in Japanese the character attached itself to する to write 仕事 and 仕方.",
+"A person standing beside an official, ready to <b>serve</b>.",
+[["仕事","しごと","work, job"],["仕方","しかた","way of doing"],["仕方がない","しかたがない","it cannot be helped"]],
+[["士","scholar: top bar longer than the bottom"],["土","earth: bottom bar longer than the top"],["任","(N3) entrust: person plus a different stem"]],
+["{電車|でんしゃ}が{止|と}まっているので、{仕方|しかた}がないです。","The trains have stopped, so there is nothing to be done."]);
+
+K("代",["substitute","generation","fee"],["ダイ","タイ"],["か.わる","か.える","よ"],"亻|person",[["亻","person"],["弋","stake (sound)"]],
+"形声 phono-semantic",
+"A person 亻 with 弋, a stake used to mark a position, which gives the sound. One person takes another's marked place: substitution. Taking turns across time gave generation and era, and paying in place of goods gave the sense of fee.",
+"One person steps into another's place: a <b>substitute</b>, an <b>era</b>, a <b>fee</b> paid instead.",
+[["時代","じだい","era, period"],["電気代","でんきだい","electricity bill"],["代わりに","かわりに","instead of"]],
+[["化","(N3) change: person plus a seated figure"],["他","(N3) other: person plus a snake shape"]],
+["{学生|がくせい}{時代|じだい}、よく{映画|えいが}を{見|み}ました。","In my student days I watched a lot of movies."]);
+
+K("以",["by means of","from a point","since"],["イ"],[],"人|person",[["𠙴","tool"],["人","person"]],
+"象形 pictograph",
+"A person alongside a plow or tool: to take something in hand and use it. From using a thing as a means, it became the grammar word for from this point: 以上, 以下, 以外.",
+"A person picks up a tool: <b>by means of</b> this, measure everything from here.",
+[["以上","いじょう","more than; that is all"],["以下","いか","less than, below"],["以外","いがい","other than"]],
+[["似","(N3) to resemble: a person added to 以"]],
+["三十{分|ぷん}{以上|いじょう}バスを{待|ま}ちました。","I waited more than thirty minutes for the bus."]);
+
+K("低",["low"],["テイ"],["ひく.い"],"亻|person",[["亻","person"],["氐","base, bottom (sound テイ)"]],
+"形声 phono-semantic",
+"A person 亻 plus 氐, a root reaching down to a base line, which also gives the sound テイ. A person bent down toward the ground: low.",
+"A person crouching down to the base line: <b>low</b>.",
+[["低い","ひくい","low; short (height)"],["最低","さいてい","the lowest; awful"]],
+[["底","(N3) bottom: the same base under a roof"],["高","(N5) high: the opposite"]],
+["{弟|おとうと}は{背|せ}が{低|ひく}いですが、バスケットボールが{上手|じょうず}です。","My little brother is short, but he is good at basketball."]);
+
+K("住",["dwell","live","reside"],["ジュウ"],["す.む"],"亻|person",[["亻","person"],["主","master (sound)"]],
+"形声 phono-semantic",
+"A person 亻 plus 主, the master who keeps the household flame, which also gives the sound. The person who stays where the flame burns dwells there.",
+"A person settles where the <b>master's</b> flame burns: to <b>live</b> there.",
+[["住む","すむ","to live, reside"],["住所","じゅうしょ","address"]],
+[["主","master: the flame itself, no person"],["注","pour: water instead of a person"]],
+["ロサンゼルスに{住|す}んで{十年|じゅうねん}になります。","I have lived in Los Angeles for ten years."]);
+
+K("体",["body"],["タイ"],["からだ"],"亻|person",[["亻","person"],["本","origin, root"]],
+"会意 compound ideograph",
+"A person 亻 plus 本, root or origin: the root of a person is the body. This is a simplified form; the traditional character 體 was built from bone 骨.",
+"A person's <b>root</b> and foundation is the <b>body</b>.",
+[["体","からだ","body"],["大体","だいたい","roughly, mostly"],["体重","たいじゅう","body weight"]],
+[["休","(N5) rest: a person against a tree"],["本","(N5) book, origin: no person"]],
+["{毎朝|まいあさ}{走|はし}ると、{体|からだ}の{調子|ちょうし}がいいです。","When I run every morning, my body feels good."]);
+
+K("作",["make","create"],["サク","サ"],["つく.る"],"亻|person",[["亻","person"],["乍","to cut, begin (sound)"]],
+"形声 phono-semantic",
+"A person 亻 plus 乍, a picture of cutting notches to start a task, which gives the sound. A person starting the cuts is making something.",
+"A person cuts the first notches: to <b>make</b>.",
+[["作る","つくる","to make"],["作文","さくぶん","essay, composition"],["作り方","つくりかた","how to make"]],
+[["昨","yesterday: sun plus the same 乍"],["使","use: the right side differs"],["借","borrow: person plus 昔"]],
+["{母|はは}はケーキを{作|つく}るのが{上手|じょうず}です。","My mother is good at making cakes."]);
+
+K("使",["use","messenger"],["シ"],["つか.う"],"亻|person",[["亻","person"],["吏","official"]],
+"会意 compound ideograph",
+"A person 亻 plus 吏, an official holding a record: to give a person official orders, to employ them. From employing people it widened to using anything.",
+"Put a person to official work: to <b>use</b>.",
+[["使う","つかう","to use"],["使い方","つかいかた","how to use"],["大使館","たいしかん","embassy"]],
+[["便","convenience: one extra stroke inside"],["仕","serve: simpler right side"]],
+["この{漢字|かんじ}は{毎日|まいにち}の{生活|せいかつ}でよく{使|つか}います。","This kanji is used often in daily life."]);
+
+K("便",["convenience","mail"],["ベン","ビン"],["たよ.り"],"亻|person",[["亻","person"],["更","to change, renew"]],
+"会意 compound ideograph",
+"A person 亻 plus 更, to change or renew: a person rearranging things to make them easier. Ease of movement gave convenience, and the convenient carrying of letters gave the mail sense (郵便, 便り).",
+"A person rearranges things until they are <b>convenient</b>, then <b>mails</b> the good news.",
+[["便利","べんり","convenient"],["不便","ふべん","inconvenient"],["郵便局","ゆうびんきょく","post office"]],
+[["使","use: nearly identical frame, one stroke fewer"],["更","(N3) anew: the shared right side"]],
+["{駅|えき}の{近|ちか}くはスーパーもあって、とても{便利|べんり}です。","Near the station there is a supermarket too, so it is very convenient."]);
+
+K("信",["believe","trust"],["シン"],["しん.じる"],"亻|person",[["亻","person"],["言","words"]],
+"会意 compound ideograph",
+"A person 亻 standing by their words 言: a person whose word can be trusted. Trust, belief, and by extension signals and messages that carry one's word (信号).",
+"A person true to their <b>words</b> earns <b>trust</b>.",
+[["信じる","しんじる","to believe"],["信号","しんごう","traffic light, signal"],["自信","じしん","confidence"]],
+[["言","words alone, no person"],["話","(N5) to talk: words plus tongue"]],
+["{青|あお}い{信号|しんごう}になってから{渡|わた}ってください。","Please cross after the light turns green."]);
+
+K("働",["work"],["ドウ"],["はたら.く"],"亻|person",[["亻","person"],["動","to move"]],
+"国字 made in Japan",
+"A kanji invented in Japan: a person 亻 plus 動, to move. A person in motion is a person at work. Chinese later borrowed it back.",
+"A person in <b>motion</b> is a person at <b>work</b>.",
+[["働く","はたらく","to work"],["共働き","ともばたらき","dual income"]],
+[["動","move: the same character without the person"],["勉","effort: a different kind of exertion"]],
+["{姉|あね}は{病院|びょういん}で{働|はたら}いています。","My older sister works at a hospital."]);
+
+K("元",["origin","source","former"],["ゲン","ガン"],["もと"],"儿|legs",[["二","head marker"],["儿","person, legs"]],
+"象形 pictograph",
+"A person 儿 drawn with the head emphasized by two strokes on top. The head is the origin point of the body, so the character means origin, source, and former state.",
+"A figure with a big head: the head is the <b>origin</b> of everything.",
+[["元気","げんき","healthy, energetic"],["元日","がんじつ","New Year's Day"],["地元","じもと","hometown, local"]],
+[["先","(N5) previous: a foot on top instead"],["兄","older brother: a mouth on the legs"],["光","light: rays on the legs"]],
+["{久|ひさ}しぶりですね。お{元気|げんき}でしたか。","It has been a while. Have you been well?"]);
+
+K("兄",["older brother"],["ケイ","キョウ"],["あに"],"儿|legs",[["口","mouth"],["儿","person"]],
+"会意 compound ideograph",
+"A person 儿 topped by a large mouth 口: the family member who speaks the prayers and speaks for the siblings, the eldest brother.",
+"The sibling with the big <b>mouth</b> who speaks first: the <b>older brother</b>.",
+[["兄","あに","(my) older brother"],["お兄さん","おにいさん","older brother (polite)"],["兄弟","きょうだい","siblings"]],
+[["元","origin: two plain strokes instead of a mouth"],["光","light: rays instead of a mouth"],["見","(N5) to see: an eye on the legs"]],
+["{兄|あに}は{東京|とうきょう}の{会社|かいしゃ}で{働|はたら}いています。","My older brother works at a company in Tokyo."]);
+
+K("光",["light","shine"],["コウ"],["ひかり","ひか.る"],"儿|legs",[["⺌","rays of fire"],["儿","person"]],
+"会意 compound ideograph",
+"A person 儿 carrying fire above the head: torchlight held aloft. The rays at the top are what remains of the flame.",
+"A person holds fire overhead: <b>light</b> shines out.",
+[["光","ひかり","light"],["光る","ひかる","to shine"],["日光","にっこう","sunlight"]],
+[["元","origin: flat strokes, no rays"],["先","(N5) previous: a foot shape on top"]],
+["{星|ほし}の{光|ひかり}がきれいな{夜|よる}でした。","It was a night with beautiful starlight."]);
+
+K("公",["public","official"],["コウ"],["おおやけ"],"八|divide",[["八","to divide"],["厶","private"]],
+"会意 compound ideograph",
+"八, to divide away, placed over 厶, the private: what is divided away from private hands belongs to everyone. Public.",
+"Split away the <b>private</b> and what is left is <b>public</b>.",
+[["公園","こうえん","park"],["公立","こうりつ","public (school etc.)"]],
+[["私","the opposite: grain kept for oneself, private"],["分","(N5) to divide: 八 over a sword"]],
+["{日曜日|にちようび}に{公園|こうえん}で{犬|いぬ}と{遊|あそ}びました。","On Sunday I played with my dog in the park."]);
+
+K("写",["copy","photograph"],["シャ"],["うつ.す","うつ.る"],"冖|cover",[["冖","cover"],["与","to give, transfer"]],
+"形声 phono-semantic",
+"Simplified from 寫. A cover 冖 over 与, to transfer: laying a sheet over an original and transferring the image beneath. To copy, and in the modern era, to photograph.",
+"Under a thin <b>cover</b> sheet, the image transfers: a <b>copy</b>, a <b>photo</b>.",
+[["写真","しゃしん","photograph"],["写す","うつす","to copy; to photograph"]],
+[["真","truth: the other half of 写真"],["字","character: a child under the roof instead"]],
+["{旅行|りょこう}で{写真|しゃしん}をたくさん{撮|と}りました。","I took lots of photos on the trip."]);
+
+K("冬",["winter"],["トウ"],["ふゆ"],"夂|go slowly",[["夂","ends of a rope"],["冫","ice"]],
+"会意 compound ideograph",
+"Originally a drawing of a rope with both ends tied off: the end of the cycle. Ice 冫 was added below: the season of ice that ends the year.",
+"The year's rope is tied off and <b>ice</b> forms: <b>winter</b>.",
+[["冬","ふゆ","winter"],["冬休み","ふゆやすみ","winter vacation"]],
+[["夏","summer: the same slow feet, no ice"],["終","to end: 冬 lends it the sound and the idea"]],
+["{今年|ことし}の{冬|ふゆ}はあまり{寒|さむ}くないです。","This winter is not very cold."]);
+
+K("切",["cut"],["セツ"],["き.る","き.れる"],"刀|sword",[["七","cut mark (sound)"],["刀","sword"]],
+"形声 phono-semantic",
+"七, originally a picture of a line being cut through, plus 刀, a blade. To cut. In 大切, what is cut close to the heart is precious.",
+"Seven strokes of the <b>blade</b>: to <b>cut</b>.",
+[["切る","きる","to cut"],["切手","きって","postage stamp"],["切符","きっぷ","ticket"],["大切","たいせつ","important, precious"]],
+[["七","(N5) seven: the left half alone"],["別","to separate: the blade 刂 on the right"]],
+["すみません、{切符|きっぷ}を{二枚|にまい}ください。","Excuse me, two tickets please."]);
+
+K("別",["separate","another"],["ベツ"],["わか.れる"],"刂|blade",[["另","jointed bone"],["刂","blade"]],
+"会意 compound ideograph",
+"A jointed bone on the left and a blade 刂 on the right: carving meat apart at the joints. To divide, to part from someone, and hence other, different.",
+"The <b>blade</b> parts the joints: <b>separate</b> pieces, <b>another</b> piece.",
+[["別れる","わかれる","to part, break up"],["特別","とくべつ","special"],["別に","べつに","not particularly"]],
+[["切","to cut: the full sword 刀 instead of 刂"],["例","(N3) example"]],
+["{駅|えき}で{友|とも}だちと{別|わか}れました。","I parted from my friend at the station."]);
+
+K("力",["power","strength"],["リョク","リキ"],["ちから"],"力|power",[["力","flexed arm"]],
+"象形 pictograph",
+"A drawing of an arm flexed to show its muscle, or in another reading of the same shape, a plow that takes strength to pull. Raw strength.",
+"A flexed arm: <b>strength</b>.",
+[["力","ちから","strength, power"],["力持ち","ちからもち","strong person"],["全力","ぜんりょく","full power"]],
+[["九","(N5) nine: the tail sweeps out"],["万","(N5) ten thousand: an extra top bar"],["刀","katana: the blade curves the other way"]],
+["{力|ちから}を{合|あ}わせて、テーブルを{運|はこ}びました。","We combined our strength and carried the table."]);
+
+K("勉",["exertion","effort"],["ベン"],[],"力|power",[["免","to strain free (sound)"],["力","strength"]],
+"形声 phono-semantic",
+"免, a figure straining to slip free, plus 力, strength: to push with all one's might. In Japanese it lives almost entirely inside 勉強, studying as strenuous effort.",
+"Straining with all your <b>strength</b>: the effort of <b>study</b>.",
+[["勉強","べんきょう","study"],["勉強になる","べんきょうになる","to be educational"]],
+[["強","strong: the other half of 勉強"],["晩","evening: 免 also hides inside it"]],
+["{毎晩|まいばん}{一時間|いちじかん}、{漢字|かんじ}を{勉強|べんきょう}します。","Every evening I study kanji for one hour."]);
+
+K("動",["move"],["ドウ"],["うご.く"],"力|power",[["重","heavy (sound)"],["力","strength"]],
+"形声 phono-semantic",
+"重, a heavy load, plus 力, strength: strength applied to something heavy sets it in motion. To move.",
+"Put <b>strength</b> against the <b>heavy</b> thing and it <b>moves</b>.",
+[["動く","うごく","to move"],["動物","どうぶつ","animal"],["運動","うんどう","exercise"],["自動車","じどうしゃ","automobile"]],
+[["働","work: a person joins the moving"],["重","heavy: the load without the strength"]],
+["この{時計|とけい}は{古|ふる}いですが、まだ{動|うご}きます。","This clock is old, but it still runs."]);
+
+K("区",["ward","district"],["ク"],[],"匚|box",[["匚","open box"],["㐅","sorted items"]],
+"会意 compound ideograph",
+"Simplified from 區: many small items 品 sorted into an open box 匚. Dividing things into compartments gave section, and then the wards a city is divided into.",
+"Sort the pieces into the <b>box</b>: a city divided into <b>wards</b>.",
+[["区","く","ward"],["地区","ちく","district"]],
+[["図","drawing: the box is sealed shut"],["医","doctor: an arrow sits in the box"]],
+["{東京|とうきょう}には{二十三|にじゅうさん}の{区|く}があります。","Tokyo has twenty-three wards."]);
+
+K("医",["medicine","doctor"],["イ"],[],"匚|box",[["匚","case"],["矢","arrow"]],
+"会意 compound ideograph",
+"An arrow 矢 placed in a case 匚: the arrow pulled from a wound and set aside, the oldest image of surgery. The full form 醫 added a hand and medicinal wine; the case and arrow are what remain.",
+"The <b>arrow</b> is out and in the case: the <b>doctor's</b> work is done.",
+[["医者","いしゃ","doctor"],["歯医者","はいしゃ","dentist"],["医学","いがく","medical science"]],
+[["区","ward: an X in the box instead of an arrow"],["矢","arrow: the inside piece on its own"]],
+["{熱|ねつ}があるので、{医者|いしゃ}に{行|い}きます。","I have a fever, so I am going to the doctor."]);
+
+K("去",["leave","past"],["キョ","コ"],["さ.る"],"厶|private",[["土","figure leaving"],["厶","enclosure"]],
+"会意 compound ideograph",
+"A figure stepping up and away from an enclosure below: to leave. Time that has left us is the past, as in 去年, the year that went away.",
+"Step out of the enclosure and go: <b>leave</b>; time that left is the <b>past</b>.",
+[["去年","きょねん","last year"],["過去","かこ","the past"]],
+[["会","to meet: a roof gathers people in; 去 walks out"],["先","(N5) previous, ahead"]],
+["{去年|きょねん}の{夏|なつ}、{日本|にほん}へ{行|い}きました。","Last summer I went to Japan."]);
+
+K("口",["mouth","opening"],["コウ","ク"],["くち"],"口|mouth",[["口","open mouth"]],
+"象形 pictograph",
+"A drawing of an open mouth. It doubles as any opening: the mouth of a bag, a doorway, an exit.",
+"An open <b>mouth</b>, and every <b>opening</b> after it.",
+[["口","くち","mouth"],["入口","いりぐち","entrance"],["出口","でぐち","exit"],["人口","じんこう","population"]],
+[["日","(N5) sun: a bar crosses the middle"],["回","(N5) times: a mouth inside a mouth"]],
+["{出口|でぐち}は{右|みぎ}にあります。","The exit is on the right."]);
+
+K("古",["old"],["コ"],["ふる.い"],"口|mouth",[["十","ten"],["口","mouth"]],
+"会意 compound ideograph",
+"Ten 十 over mouth 口: a story that has passed through ten generations of mouths. Old, ancient.",
+"Told by <b>ten</b> generations of <b>mouths</b>: <b>old</b>.",
+[["古い","ふるい","old (things)"],["中古","ちゅうこ","secondhand"]],
+[["苦","(N3) bitter, suffering: 古 wearing a grass crown"],["台","platform: a different top on the mouth"]],
+["この{寺|てら}は{五百年|ごひゃくねん}{前|まえ}の{古|ふる}い{建物|たてもの}です。","This temple is an old building from five hundred years ago."]);
+
+K("台",["platform","stand","counter for machines"],["ダイ","タイ"],[],"口|mouth",[["厶","top piece"],["口","base"]],
+"会意 compound ideograph",
+"Simplified from 臺, a tall building on a platform. The modern shape is a piece set on a base: a stand, a counter top, and the counter word for machines and vehicles.",
+"Something set on a <b>base</b>: a <b>platform</b>, and one <b>machine</b> standing on it.",
+[["台所","だいどころ","kitchen"],["一台","いちだい","one (machine, car)"],["台風","たいふう","typhoon"]],
+[["始","to begin: a woman beside the platform"],["合","to fit: a lid covers the mouth"]],
+["{車|くるま}が{二台|にだい}あります。","We have two cars."]);
+
+K("合",["fit","match","join"],["ゴウ","ガッ"],["あ.う"],"口|mouth",[["𠆢","lid"],["口","container mouth"]],
+"会意 compound ideograph",
+"A lid coming down onto the mouth of a container: a perfect fit. To match, to come together, to combine.",
+"The lid <b>fits</b> the jar's mouth exactly: to <b>match</b>.",
+[["合う","あう","to fit, match"],["間に合う","まにあう","to be in time"],["試合","しあい","match, game"],["都合","つごう","circumstances, convenience"]],
+[["会","(N5) to meet: no mouth under the roof"],["答","to answer: bamboo grows on top"],["台","platform: no lid"]],
+["この{靴|くつ}はサイズがよく{合|あ}っています。","These shoes fit well."]);
+
+K("同",["same"],["ドウ"],["おな.じ"],"口|mouth",[["冂","frame"],["一","one"],["口","mouth"]],
+"会意 compound ideograph",
+"People gathered under one frame 冂, speaking with one mouth 口: everyone the same, together.",
+"One frame, one <b>mouth</b>: everyone says the <b>same</b> thing.",
+[["同じ","おなじ","same"],["同時","どうじ","the same time"]],
+[["回","(N5) times: a full box inside"],["向","(N3) to face: a stroke escapes the top"]],
+["{私|わたし}たちは{同|おな}じ{大学|だいがく}を{出|で}ました。","We graduated from the same university."]);
+
+K("味",["taste","flavor"],["ミ"],["あじ"],"口|mouth",[["口","mouth"],["未","not yet (sound)"]],
+"形声 phono-semantic",
+"Mouth 口 plus 未, a tree whose topmost branch has not yet ripened, which gives the sound. What the mouth discovers in the not yet known: taste, and by extension the meaning inside things.",
+"The <b>mouth</b> tries what is <b>not yet</b> known: <b>taste</b>.",
+[["味","あじ","taste, flavor"],["意味","いみ","meaning"],["趣味","しゅみ","hobby"]],
+[["妹","younger sister: woman + the same 未"],["昧? no: 未","(N3) not yet: the right half alone"]],
+["このスープはどんな{味|あじ}がしますか。","What does this soup taste like?"]);
+
+K("品",["goods","article","quality"],["ヒン"],["しな"],"口|mouth",[["口","container, times three"]],
+"会意 compound ideograph",
+"Three containers 口 stacked together: many articles laid out. Goods, and from well arranged goods, the sense of quality and refinement.",
+"Three boxes on display: <b>goods</b> of good <b>quality</b>.",
+[["品物","しなもの","goods, article"],["食品","しょくひん","food products"],["作品","さくひん","a work, a piece"]],
+[["区","ward: the boxes gathered into one crate"],["口","mouth: a single box of the three"]],
+["この{店|みせ}は{品物|しなもの}が{多|おお}くて{安|やす}いです。","This shop has lots of goods and they are cheap."]);
+
+K("員",["member","personnel"],["イン"],[],"口|mouth",[["口","mouth"],["貝","shell, money"]],
+"会意 compound ideograph",
+"A mouth 口 over a cowrie shell 貝, ancient money: originally the round mouth of a vessel used for counting, it settled on the people counted on a payroll. Member, staff.",
+"Heads counted over the <b>money</b>: the <b>staff</b>.",
+[["店員","てんいん","shop clerk"],["駅員","えきいん","station attendant"],["会社員","かいしゃいん","company employee"]],
+[["買","(N5) to buy: a net over the same shell"],["貸","to lend: 代 over the shell"]],
+["{駅員|えきいん}に{道|みち}を{聞|き}きました。","I asked the station attendant for directions."]);
+
+K("問",["question","ask"],["モン"],["と.う"],"口|mouth",[["門","gate (sound)"],["口","mouth"]],
+"形声 phono-semantic",
+"A mouth 口 standing at a gate 門, which also gives the sound モン: calling at the gate to ask. Question.",
+"A <b>mouth</b> at the <b>gate</b>, asking to come in: a <b>question</b>.",
+[["質問","しつもん","question"],["問題","もんだい","problem, question"]],
+[["聞","(N5) to hear: an ear at the gate"],["間","(N5) interval: the sun at the gate"],["開","to open: hands push the gate"]],
+["{質問|しつもん}があったら、{手|て}を{上|あ}げてください。","If you have a question, please raise your hand."]);
+
+K("図",["drawing","diagram","plan"],["ズ","ト"],[],"囗|enclosure",[["囗","sealed frame"],["メ","map marks"]],
+"会意 compound ideograph",
+"Simplified from 圖: a mapped territory drawn inside a sealed frame 囗. A diagram, a map, a plan.",
+"Marks inside a sealed frame: a <b>map</b>, a <b>diagram</b>.",
+[["地図","ちず","map"],["図書館","としょかん","library"]],
+[["区","ward: the box left open"],["国","(N5) country: a jewel in the frame"]],
+["{図書館|としょかん}で{日本|にほん}の{地図|ちず}を{借|か}りました。","I borrowed a map of Japan at the library."]);
+
+K("地",["ground","earth","land"],["チ","ジ"],[],"土|earth",[["土","earth"],["也","winding shape (sound)"]],
+"形声 phono-semantic",
+"Earth 土 plus 也, a long winding shape that gives the sound: the ground stretching and winding away. Land, place.",
+"The <b>earth</b> winds away to the horizon: the <b>ground</b> itself.",
+[["地下鉄","ちかてつ","subway"],["地図","ちず","map"],["地震","じしん","earthquake"]],
+[["池","pond: water + the same 也"],["他","(N3) other: a person + 也"]],
+["{地下鉄|ちかてつ}で{行|い}くほうが{速|はや}いですよ。","Going by subway is faster."]);
+
+K("堂",["hall"],["ドウ"],[],"土|earth",[["尚","lofty (sound)"],["土","earthen platform"]],
+"形声 phono-semantic",
+"尚, something raised high, over 土, an earthen platform: a grand hall built up on packed earth. Hall.",
+"A lofty roof on a raised <b>earth</b> platform: a <b>hall</b>.",
+[["食堂","しょくどう","dining hall, cafeteria"]],
+[["場","place: the earth moves to the left side"],["常","(N3) usual: the same lofty crown"]],
+["{昼|ひる}は{大学|だいがく}の{食堂|しょくどう}で{食|た}べます。","At noon I eat in the university cafeteria."]);
+
+K("場",["place"],["ジョウ"],["ば"],"土|earth",[["土","earth"],["昜","sun rising high (sound)"]],
+"形声 phono-semantic",
+"Earth 土 plus 昜, the sun climbing high with its rays streaming down, which gives the sound: open sunlit ground. A place.",
+"Sunlight pours onto open <b>ground</b>: a <b>place</b>.",
+[["場所","ばしょ","place, location"],["工場","こうじょう","factory"],["駐車場","ちゅうしゃじょう","parking lot"]],
+[["湯","(N3) hot water: water + the same sunny 昜"],["陽","(N3) sunshine"]],
+["この{場所|ばしょ}は{昔|むかし}、{工場|こうじょう}でした。","This place used to be a factory."]);
+
+K("声",["voice"],["セイ"],["こえ"],"士|scholar",[["士","chime top"],["尸","hanging stone"]],
+"象形 pictograph",
+"Simplified from 聲: a stone chime being struck, with a hand and an ear alongside. The modern form keeps just the hanging chime. The sound a living body sends out: voice.",
+"The chime rings out: a <b>voice</b> carries.",
+[["声","こえ","voice"],["大声","おおごえ","loud voice"]],
+[["音","sound: any sound at all; 声 is a voice"],["売","to sell: a similar crown, legs below"]],
+["もう{少|すこ}し{大|おお}きい{声|こえ}で{言|い}ってください。","Please say it in a slightly louder voice."]);
+
+K("売",["sell"],["バイ"],["う.る","う.れる"],"士|scholar",[["士","goods put out"],["冖","counter"],["儿","legs"]],
+"会意 compound ideograph",
+"Simplified from 賣: goods brought out 出 over 買, to buy. Putting things out for people to buy: to sell.",
+"Bring the goods out where buyers are: to <b>sell</b>.",
+[["売る","うる","to sell"],["売り場","うりば","sales floor, counter"],["売れる","うれる","to sell well"]],
+[["買","(N5) to buy: the mirror half of the trade"],["読","(N5) to read: 売 hides on its right side"],["声","voice: a similar crown"]],
+["あの{店|みせ}では{古|ふる}い{本|ほん}を{売|う}っています。","That shop sells old books."]);
+
+K("夏",["summer"],["カ"],["なつ"],"夂|go slowly",[["𦣻","masked head"],["夂","slow feet"]],
+"象形 pictograph",
+"A dancer in a great mask moving with slow steps 夂: the midsummer festival dance. Summer.",
+"A masked dancer stomps slowly in the heat: <b>summer</b>.",
+[["夏","なつ","summer"],["夏休み","なつやすみ","summer vacation"]],
+[["冬","winter: the same trailing feet, plus ice"],["秋","autumn: the third of the season set"]],
+["{夏休|なつやす}みに{海|うみ}へ{行|い}くつもりです。","I plan to go to the sea over summer vacation."]);
+
+K("夕",["evening"],["セキ"],["ゆう"],"夕|evening",[["夕","half-risen moon"]],
+"象形 pictograph",
+"The moon just clearing the horizon at dusk. It shares its origin with 月, drawn with one stroke fewer because the moon is not yet fully out.",
+"The moon half up over the horizon: <b>evening</b>.",
+[["夕方","ゆうがた","evening, dusk"],["夕食","ゆうしょく","dinner"]],
+[["月","(N5) moon: one stroke more, fully risen"],["多","many: two evenings stacked"],["名","(N5) name: an evening over a mouth"]],
+["{夕方|ゆうがた}、{公園|こうえん}を{散歩|さんぽ}します。","In the evening I take a walk in the park."]);
+
+K("多",["many"],["タ"],["おお.い"],"夕|evening",[["夕","evening"],["夕","evening again"]],
+"会意 compound ideograph",
+"Two evenings 夕 stacked one on the other: night after night piling up. Many.",
+"Evening upon evening: <b>many</b>.",
+[["多い","おおい","many, much"],["多分","たぶん","probably"]],
+[["夕","a single evening"],["名","(N5) name: one evening over a mouth"]],
+["この{町|まち}は{雨|あめ}の{日|ひ}が{多|おお}いです。","This town has many rainy days."]);
+
+K("夜",["night"],["ヤ"],["よる","よ"],"夕|evening",[["亠","cover"],["亻","person"],["夕","moon"]],
+"会意 compound ideograph",
+"A person 亻 under a covering roof with the moon 夕 hanging beside them: the hours a person spends indoors under the moon. Night.",
+"A person indoors, the moon outside: <b>night</b>.",
+[["夜","よる","night"],["今夜","こんや","tonight"],["夜中","よなか","middle of the night"]],
+[["夕","dusk: just the moon, before full dark"],["液","(N2) liquid: water joins the night"]],
+["{夜|よる}、{静|しず}かな{音楽|おんがく}を{聞|き}きます。","At night I listen to quiet music."]);
+
+K("太",["thick","fat"],["タイ","タ"],["ふと.い","ふと.る"],"大|big",[["大","big"],["丶","extra dot"]],
+"指事 ideograph",
+"大, a person with arms spread wide, plus one extra dot for emphasis: bigger than big. Thick, plump.",
+"Big, with a dot for extra: <b>thick</b>, <b>fat</b>.",
+[["太い","ふとい","thick"],["太る","ふとる","to gain weight"],["太陽","たいよう","the sun"]],
+[["大","(N5) big: no dot"],["犬","dog: the dot rides the shoulder"],["天","(N5) heaven: a bar across the top"]],
+["{冬|ふゆ}は{少|すこ}し{太|ふと}ってしまいます。","In winter I end up gaining a little weight."]);
+
+K("好",["like","fond"],["コウ"],["す.き","この.む"],"女|woman",[["女","woman"],["子","child"]],
+"会意 compound ideograph",
+"A woman 女 holding her child 子: the oldest picture of affection. To like, to be fond of, good.",
+"A mother and child: the picture of <b>liking</b>.",
+[["好き","すき","liked, favorite"],["大好き","だいすき","loved, favorite"],["好み","このみ","preference"]],
+[["安","cheap, at ease: the woman sits under a roof"],["始","to begin: the woman beside a platform"]],
+["{甘|あま}いものが{大好|だいす}きです。","I love sweet things."]);
+
+K("妹",["younger sister"],["マイ"],["いもうと"],"女|woman",[["女","woman"],["未","not yet grown (sound)"]],
+"形声 phono-semantic",
+"Woman 女 plus 未, a tree whose top branch has not finished growing, which also gives the sound: the sister not yet grown. Younger sister.",
+"The <b>not yet</b> grown sister: the <b>younger sister</b>.",
+[["妹","いもうと","(my) younger sister"],["妹さん","いもうとさん","younger sister (polite)"]],
+[["味","taste: a mouth instead of the woman"],["姉","older sister: the pair"],["未","(N3) not yet: the right half alone"]],
+["{妹|いもうと}は{犬|いぬ}が{大好|だいす}きです。","My little sister loves dogs."]);
+
+K("姉",["older sister"],["シ"],["あね"],"女|woman",[["女","woman"],["巿","grown marker (sound)"]],
+"形声 phono-semantic",
+"Woman 女 plus a right side read シ that marks the grown one of the pair: the sister old enough to run errands to market. Older sister.",
+"The grown sister who goes to <b>market</b>: the <b>older sister</b>.",
+[["姉","あね","(my) older sister"],["お姉さん","おねえさん","older sister (polite)"],["姉妹","しまい","sisters"]],
+[["妹","younger sister: 未 on the right instead"],["市","(N3) city, market: the right side alone"]],
+["{姉|あね}は{料理|りょうり}がとても{上手|じょうず}です。","My older sister is very good at cooking."]);
+
+K("始",["begin"],["シ"],["はじ.まる","はじ.める"],"女|woman",[["女","woman"],["台","platform (sound)"]],
+"形声 phono-semantic",
+"Woman 女 plus 台, which gives the sound シ: where a woman is, life begins. The character for beginnings of every kind.",
+"Where the mother is, everything <b>begins</b>.",
+[["始まる","はじまる","to begin (intr.)"],["始める","はじめる","to begin (tr.)"],["始めに","はじめに","at the start"]],
+[["台","platform: the right half alone"],["好","to like: the woman with a child instead"]],
+["{映画|えいが}は{七時|しちじ}に{始|はじ}まります。","The movie starts at seven."]);
+
+K("字",["character","letter"],["ジ"],[],"宀|roof",[["宀","house roof"],["子","child"]],
+"会意 compound ideograph",
+"A child 子 in the house 宀. The character originally meant to bear and raise children; compound characters were seen as offspring bred from simple ones, so it came to mean written characters themselves.",
+"Characters are <b>children</b> bred in the house of writing.",
+[["漢字","かんじ","kanji"],["字","じ","character; handwriting"],["文字","もじ","letter, character"]],
+[["家","house: a pig under the roof instead"],["学","(N5) study: the child under a different crown"],["事","matter, thing"]],
+["{漢字|かんじ}を{一日|いちにち}に{五|ご}つ{覚|おぼ}えます。","I memorize five kanji a day."]);
+
+K("安",["peaceful","cheap"],["アン"],["やす.い"],"宀|roof",[["宀","roof"],["女","woman"]],
+"会意 compound ideograph",
+"A woman 女 seated calmly inside the house 宀: peace and ease. A price that lets the buyer feel at ease is cheap.",
+"At ease under one's own <b>roof</b>: <b>peaceful</b>, and easy on the wallet, <b>cheap</b>.",
+[["安い","やすい","cheap"],["安心","あんしん","relief, peace of mind"],["安全","あんぜん","safety"]],
+[["家","house: a pig under the roof"],["好","to like: the woman with a child, no roof"],["案","(N3) plan: a tree beneath 安"]],
+["この{店|みせ}は{安|やす}くて、{味|あじ}もいいです。","This place is cheap and the food is good too."]);
+
+K("室",["room"],["シツ"],[],"宀|roof",[["宀","roof"],["至","to arrive (sound)"]],
+"形声 phono-semantic",
+"Roof 宀 plus 至, an arrow striking the ground, to arrive: the room inside where one finally arrives and settles. A formal room.",
+"Arrive under the <b>roof</b> and settle: a <b>room</b>.",
+[["教室","きょうしつ","classroom"],["会議室","かいぎしつ","meeting room"]],
+[["屋","building, shop: a reclining roof over 至"],["家","house: the whole dwelling, not one room"]],
+["{教室|きょうしつ}で{先生|せんせい}を{待|ま}ちます。","We wait for the teacher in the classroom."]);
+
+K("家",["house","family"],["カ","ケ"],["いえ","や"],"宀|roof",[["宀","roof"],["豕","pig"]],
+"会意 compound ideograph",
+"A pig 豕 under the roof 宀: the ancient farmhouse kept its livestock indoors, and the animals under the roof meant a household. House, home, family. Also read うち in everyday speech.",
+"A pig under the <b>roof</b>: a real <b>household</b>.",
+[["家","いえ","house, home (also うち)"],["家族","かぞく","family"],["家賃","やちん","rent"]],
+[["安","peaceful: a woman under the roof"],["字","character: a child under the roof"],["室","room: one room of the house"]],
+["{家族|かぞく}と{家|いえ}でゆっくりしました。","I relaxed at home with my family."]);
+
+K("寒",["cold"],["カン"],["さむ.い"],"宀|roof",[["宀","roof"],["井","packed straw"],["冫","ice"]],
+"会意 compound ideograph",
+"A person inside the house 宀 stuffing straw into the walls, with ice 冫 forming below: sealing the cracks against a freezing night. Cold.",
+"Straw in the walls, <b>ice</b> at the door: <b>cold</b>.",
+[["寒い","さむい","cold (weather)"]],
+[["暑","(N3) hot: the opposite, built on the sun"],["冬","winter: shares the ice strokes"]],
+["{今朝|けさ}は{寒|さむ}かったですね。","It was cold this morning, wasn't it."]);
+
+K("屋",["building","shop"],["オク"],["や"],"尸|reclining body",[["尸","low roof"],["至","to arrive"]],
+"会意 compound ideograph",
+"A low sheltering roof 尸 over 至, to arrive: the covered place a body arrives to rest or trade. Building, and the suffix for shops: 本屋, パン屋.",
+"Arrive under the low roof: a <b>building</b>, a <b>shop</b>.",
+[["部屋","へや","room"],["本屋","ほんや","bookstore"],["屋上","おくじょう","rooftop"]],
+[["室","room: the formal roof 宀 instead"],["局","(N3) office, bureau: a similar hanging roof"]],
+["{駅前|えきまえ}の{本屋|ほんや}で{雑誌|ざっし}を{買|か}いました。","I bought a magazine at the bookstore in front of the station."]);
+
+K("工",["craft","construction"],["コウ","ク"],[],"工|craft",[["工","carpenter's square"]],
+"象形 pictograph",
+"A carpenter's tool: a work square or heavy chisel. The craftsman's trade, and everything built with it.",
+"The carpenter's square: <b>craft</b> and <b>construction</b>.",
+[["工場","こうじょう","factory"],["工事","こうじ","construction work"],["大工","だいく","carpenter"]],
+[["土","earth: the vertical breaks through the top"],["王","king: one bar more"],["エ","katakana e: the identical shape"]],
+["{道|みち}で{工事|こうじ}をしています。","There is construction going on in the road."]);
+
+K("帰",["return"],["キ"],["かえ.る","かえ.す"],"巾|cloth",[["刂","person shape"],["帚","broom"]],
+"会意 compound ideograph",
+"Simplified from 歸: a bride arriving with her broom 帚 at the house that is now hers. Coming to the place one belongs: to return, to go home.",
+"Carry your broom to where you belong: to <b>return home</b>.",
+[["帰る","かえる","to return, go home"],["帰り","かえり","the way home"]],
+[["婦","(N3) wife: the same broom with the woman"],["掃","(N2) to sweep: the broom put to work"]],
+["{今日|きょう}は{早|はや}く{家|いえ}に{帰|かえ}りたいです。","Today I want to go home early."]);
+
+K("広",["wide","spacious"],["コウ"],["ひろ.い"],"广|lean-to roof",[["广","broad roof"],["厶","open space"]],
+"形声 phono-semantic",
+"Simplified from 廣: a great roof 广 sheltering a wide open hall. Wide, spacious.",
+"A huge roof over open space: <b>wide</b>.",
+[["広い","ひろい","wide, spacious"],["広場","ひろば","plaza, square"]],
+[["店","shop: the same lean-to roof, occupied"],["度","degree: a hand measuring under the roof"]],
+["{新|あたら}しい{部屋|へや}は{広|ひろ}くて{明|あか}るいです。","The new room is spacious and bright."]);
+
+K("店",["shop","store"],["テン"],["みせ"],"广|lean-to roof",[["广","roof"],["占","to claim a spot (sound)"]],
+"形声 phono-semantic",
+"Roof 广 plus 占, to claim a spot by divination, which gives the sound: a claimed spot under a roof where goods are laid out. A shop.",
+"Claim a spot under the roof and lay out goods: a <b>shop</b>.",
+[["店","みせ","shop"],["店員","てんいん","shop clerk"],["喫茶店","きっさてん","coffee shop"]],
+[["広","wide: the same roof over empty space"],["度","degree: same roof, a measuring hand"]],
+["この{店|みせ}のラーメンは{有名|ゆうめい}です。","This shop's ramen is famous."]);
+
+K("度",["degree","times"],["ド","タク"],["たび"],"广|lean-to roof",[["广","roof"],["廿","spans"],["又","hand"]],
+"会意 compound ideograph",
+"A hand 又 measuring out spans under a roof 广: to measure. Measured units became degrees, and measured occasions became times: 一度, once.",
+"A <b>hand</b> measuring spans: <b>degrees</b>, and counted <b>times</b>.",
+[["一度","いちど","once"],["今度","こんど","next time; this time"],["温度","おんど","temperature"]],
+[["席","(N3) seat: the same roof, cloth beneath"],["渡","(N3) to cross: water beside 度"]],
+["もう{一度|いちど}{言|い}ってください。","Please say it one more time."]);
+
+K("建",["build"],["ケン","コン"],["た.てる","た.つ"],"廴|stride",[["聿","hand with brush"],["廴","long stride"]],
+"会意 compound ideograph",
+"A hand holding a brush 聿 above 廴, a long stretching stride: drawing up the plans and staking out the long lines of a structure. To build, to erect.",
+"Draw the plan, stake the long lines: to <b>build</b>.",
+[["建物","たてもの","building"],["建てる","たてる","to build"],["二階建て","にかいだて","two-story"]],
+[["書","(N5) to write: the same brush hand"],["健","(N3) healthy: a person beside 建"]],
+["{駅|えき}の{前|まえ}に{高|たか}いビルを{建|た}てています。","They are putting up a tall building in front of the station."]);
+
+K("引",["pull"],["イン"],["ひ.く","ひ.ける"],"弓|bow",[["弓","bow"],["丨","drawn string"]],
+"会意 compound ideograph",
+"A bow 弓 with a straight stroke beside it: the string drawn back. To pull, and by extension to look something up (pulling a dictionary open) and to discount (pulling a price down).",
+"Draw the <b>bow</b>string back: to <b>pull</b>.",
+[["引く","ひく","to pull; to look up"],["引き出し","ひきだし","drawer"],["割引","わりびき","discount"]],
+[["強","strong: the bow at full power"],["弱","weak: the bow doubled and feathered"]],
+["ドアは{押|お}さないで{引|ひ}いてください。","Please pull the door, not push."]);
+
+K("弟",["younger brother"],["テイ","ダイ","デ"],["おとうと"],"弓|bow",[["丷","cord ends"],["弓","stake wound with cord"]],
+"象形 pictograph",
+"A leather cord wound down a stake in strict order, top to bottom: the one lower in sequence. The younger brother.",
+"Wound lower on the family stake: the <b>younger brother</b>.",
+[["弟","おとうと","(my) younger brother"],["兄弟","きょうだい","brothers, siblings"],["弟子","でし","apprentice"]],
+[["第","(N3) ordinal number: bamboo added on top"],["弱","weak: bow shapes side by side"]],
+["{弟|おとうと}は{今年|ことし}{大学|だいがく}に{入|はい}りました。","My younger brother started university this year."]);
+
+K("弱",["weak"],["ジャク"],["よわ.い"],"弓|bow",[["弓","bow, doubled"],["冫","feather marks"]],
+"会意 compound ideograph",
+"Two slender bows 弓 decorated with feather strokes: bows of thin, bending wood, ornamental rather than powerful. Weak.",
+"Two thin decorated <b>bows</b> that bend too easily: <b>weak</b>.",
+[["弱い","よわい","weak"]],
+[["強","strong: the opposite, one powerful bow"],["弟","younger brother: a single wound stake"],["引","to pull: one bow, one string"]],
+["{私|わたし}は{寒|さむ}さに{弱|よわ}いです。","I do not handle the cold well."]);
+
+K("強",["strong"],["キョウ","ゴウ"],["つよ.い"],"弓|bow",[["弓","bow"],["虫","hard-shelled insect (sound)"]],
+"形声 phono-semantic",
+"A powerful bow 弓 plus 虫, a tough-shelled insect that supplies the sound: force that does not bend. Strong.",
+"A <b>bow</b> as tough as beetle shell: <b>strong</b>.",
+[["強い","つよい","strong"],["勉強","べんきょう","study"]],
+[["弱","weak: the opposite, two flimsy bows"],["引","to pull: the bow before the power"],["勉","exertion: 勉強's other half"]],
+["{風|かぜ}が{強|つよ}いので、{気|き}をつけてください。","The wind is strong, so please be careful."]);
+
+K("待",["wait"],["タイ"],["ま.つ"],"彳|step",[["彳","steps"],["寺","temple (sound)"]],
+"形声 phono-semantic",
+"Steps 彳 plus 寺, the temple, which gives the sound: walking to the temple grounds and standing there until the other arrives. To wait.",
+"Walk to the <b>temple</b> and stand there: to <b>wait</b>.",
+[["待つ","まつ","to wait"],["待ち合わせ","まちあわせ","arranged meeting"]],
+[["持","to hold: a hand at the temple"],["特","special: a cow at the temple"],["時","(N5) time: the sun at the temple"]],
+["{駅|えき}の{前|まえ}で{待|ま}っています。","I will be waiting in front of the station."]);
+
+K("心",["heart","mind"],["シン"],["こころ"],"心|heart",[["心","heart organ"]],
+"象形 pictograph",
+"A drawing of the heart itself, chambers and all. In kanji it stands for the mind and feelings, and appears squeezed into dozens of characters about emotion.",
+"The <b>heart</b>, drawn as the organ: the seat of the mind.",
+[["心","こころ","heart, mind"],["安心","あんしん","relief"],["心配","しんぱい","worry"]],
+[["必","(N3) without fail: a heart with a stroke pinned through"],["思","to think: a heart under a field"]],
+["{優|やさ}しい{言葉|ことば}に{心|こころ}が{温|あたた}かくなりました。","The kind words warmed my heart."]);
+
+K("思",["think"],["シ"],["おも.う"],"心|heart",[["田","brain (originally 囟)"],["心","heart"]],
+"会意 compound ideograph",
+"The top was originally 囟, the soft spot of the skull, standing for the brain; beneath it the heart 心. Brain and heart working together: to think, to feel.",
+"<b>Brain</b> above, <b>heart</b> below: to <b>think</b>.",
+[["思う","おもう","to think, feel"],["思い出","おもいで","memory"]],
+[["急","to hurry: a rushing heart"],["意","mind: a sounding heart"],["考","to consider: thinking without the heart"]],
+["{日本|にほん}の{冬|ふゆ}は{寒|さむ}いと{思|おも}います。","I think Japanese winters are cold."]);
+
+K("急",["hurry","sudden"],["キュウ"],["いそ.ぐ"],"心|heart",[["刍","hand catching up"],["心","heart"]],
+"会意 compound ideograph",
+"A hand reaching to catch someone from behind, over a heart 心: the heart pounding as you rush to catch up. To hurry; sudden.",
+"A racing <b>heart</b> chasing to catch up: <b>hurry</b>.",
+[["急ぐ","いそぐ","to hurry"],["急に","きゅうに","suddenly"],["急行","きゅうこう","express train"]],
+[["思","to think: a calmer heart"],["悪","bad: another burdened heart"]],
+["{時間|じかん}がないので、{急|いそ}ぎましょう。","We have no time, so let's hurry."]);
+
+K("悪",["bad","evil"],["アク"],["わる.い"],"心|heart",[["亜","cramped chamber (sound)"],["心","heart"]],
+"形声 phono-semantic",
+"亜, originally the cramped underground frame of a tomb chamber, over the heart 心: the heart pressed into a dark, closed place. Bad, wrong, evil.",
+"A <b>heart</b> shut in a dark chamber: <b>bad</b>.",
+[["悪い","わるい","bad"],["最悪","さいあく","the worst"]],
+[["思","to think: a field over the heart instead"],["意","mind: a sound over the heart"],["悲","(N3) sad: one more heavy heart"]],
+["{天気|てんき}が{悪|わる}いので、{家|いえ}にいます。","The weather is bad, so I am staying home."]);
+
+K("意",["mind","intention","meaning"],["イ"],[],"心|heart",[["音","sound"],["心","heart"]],
+"会意 compound ideograph",
+"Sound 音 over heart 心: the sound the heart makes inside, before it is spoken. Intention, thought, and the meaning carried in words.",
+"The <b>sound of the heart</b>: intention and <b>meaning</b>.",
+[["意味","いみ","meaning"],["注意","ちゅうい","attention, caution"],["用意","ようい","preparation"],["意見","いけん","opinion"]],
+[["音","sound: the top half alone"],["思","to think: field over heart"],["悪","bad: chamber over heart"]],
+["この{言葉|ことば}の{意味|いみ}が{分|わ}かりません。","I do not understand the meaning of this word."]);
+
+K("所",["place"],["ショ"],["ところ"],"戸|door",[["戸","door"],["斤","axe"]],
+"会意 compound ideograph",
+"A door 戸 with an axe 斤 resting beside it: the spot by the door where the tools of the house are kept. One's spot, a place.",
+"The axe leans by the <b>door</b>: everything has its <b>place</b>.",
+[["所","ところ","place"],["台所","だいどころ","kitchen"],["近所","きんじょ","neighborhood"],["住所","じゅうしょ","address"]],
+[["場","place: open ground; 所 is a spot"],["近","near: the axe travels the road"],["戸","(N3) door: the left half alone"]],
+["{静|しず}かな{所|ところ}で{勉強|べんきょう}したいです。","I want to study somewhere quiet."]);
+
+K("手",["hand"],["シュ"],["て"],"手|hand",[["手","open hand"]],
+"象形 pictograph",
+"An open hand with the fingers spread. As a component it compresses into 扌 on the left side of characters about grasping and doing.",
+"Five fingers spread wide: a <b>hand</b>.",
+[["手","て","hand"],["手紙","てがみ","letter"],["上手","じょうず","skilled"],["下手","へた","unskilled"]],
+[["毛","(N3) hair, fur: the tail curls the other way"],["千","(N5) thousand: two strokes fewer"]],
+["{左手|ひだりて}に{切手|きって}を{持|も}っています。","I am holding stamps in my left hand."]);
+
+K("持",["hold","have"],["ジ"],["も.つ"],"扌|hand",[["扌","hand"],["寺","temple (sound)"]],
+"形声 phono-semantic",
+"Hand 扌 plus 寺, the temple, which gives the sound: what the hand keeps hold of. To hold, to carry, to own.",
+"A <b>hand</b> at the temple, keeping hold: to <b>hold</b>.",
+[["持つ","もつ","to hold, have"],["気持ち","きもち","feeling"],["金持ち","かねもち","rich person"]],
+[["待","to wait: steps at the temple"],["特","special: a cow at the temple"],["時","(N5) time: the sun at the temple"]],
+["{傘|かさ}を{持|も}って{行|い}ったほうがいいですよ。","You should take an umbrella."]);
+
+K("教",["teach"],["キョウ"],["おし.える","おそ.わる"],"攵|striking hand",[["𡥉","child imitating"],["攵","hand with rod"]],
+"会意 compound ideograph",
+"A child imitating crossed patterns on the left, and a hand holding a rod 攵 on the right: an elder guiding a child through its lessons. To teach.",
+"The elder's <b>hand</b> guides the imitating <b>child</b>: to <b>teach</b>.",
+[["教える","おしえる","to teach, tell"],["教室","きょうしつ","classroom"],["教会","きょうかい","church"]],
+[["数","(N3) number: the same striking hand"],["考","to consider: the old one thinking alone"]],
+["{漢字|かんじ}の{読|よ}み{方|かた}を{教|おし}えてください。","Please teach me how to read this kanji."]);
+
+K("文",["writing","sentence"],["ブン","モン"],["ふみ"],"文|writing",[["文","tattooed figure"]],
+"象形 pictograph",
+"A standing figure with a patterned, tattooed chest: ornamental patterns, which became the word for marks, writing, and culture itself.",
+"Patterns on the chest became patterns on the page: <b>writing</b>.",
+[["文","ぶん","sentence"],["作文","さくぶん","essay"],["文化","ぶんか","culture"],["文法","ぶんぽう","grammar"]],
+[["父","(N5) father: the strokes cross higher"],["交","(N3) to cross, exchange: an extra lid on top"]],
+["{短|みじか}い{文|ぶん}をたくさん{読|よ}むと、{力|ちから}がつきます。","Reading lots of short sentences builds strength."]);
+
+K("料",["materials","fee"],["リョウ"],[],"斗|ladle",[["米","rice"],["斗","measuring ladle"]],
+"会意 compound ideograph",
+"Rice 米 and a measuring ladle 斗: measuring out grain. The measured ingredients became materials, and the measured price became a fee.",
+"Ladle out the <b>rice</b>: <b>ingredients</b>, and the <b>fee</b> for them.",
+[["料理","りょうり","cooking, dish"],["料金","りょうきん","fee, charge"],["無料","むりょう","free of charge"]],
+[["科","(N3) subject, course: a grain stalk by the ladle"],["米","(N5) rice: the left half alone"]],
+["{母|はは}の{料理|りょうり}が{一番|いちばん}おいしいです。","My mother's cooking is the best."]);
+
+K("新",["new"],["シン"],["あたら.しい","あら.た"],"斤|axe",[["立","standing"],["木","tree"],["斤","axe"]],
+"会意 compound ideograph",
+"A standing tree 木 under 立 with an axe 斤 at its side: timber at the moment it is freshly cut. New.",
+"Fresh-cut wood, still fragrant: <b>new</b>.",
+[["新しい","あたらしい","new"],["新聞","しんぶん","newspaper"],["新幹線","しんかんせん","bullet train"]],
+[["親","parent: the same left side, watching 見"],["近","near: the axe out on the road"]],
+["{新|あたら}しい{言葉|ことば}をノートに{書|か}きます。","I write new words in my notebook."]);
+
+K("方",["direction","way","person"],["ホウ"],["かた"],"方|direction",[["方","branching plow"]],
+"象形 pictograph",
+"A plow with handles branching to both sides: pointing two ways at once. Direction, side, method, and as かた, a respectful word for a person.",
+"A plow points both ways: <b>direction</b>, and the <b>way</b> of doing.",
+[["読み方","よみかた","how to read"],["この方","このかた","this person (polite)"],["方","ほう","side, direction"]],
+[["万","(N5) ten thousand: no top dot"],["旅","journey: 方 marching under a banner"]],
+["この{漢字|かんじ}の{使|つか}い{方|かた}を{知|し}っていますか。","Do you know how to use this kanji?"]);
+
+K("旅",["journey","travel"],["リョ"],["たび"],"方|direction",[["㫃","banner"],["𧘇","people marching"]],
+"会意 compound ideograph",
+"A banner streaming on its pole with people marching beneath it: a troop on the move, and later any journey.",
+"People on the road under one <b>banner</b>: a <b>journey</b>.",
+[["旅行","りょこう","trip, travel"],["旅館","りょかん","Japanese inn"],["旅","たび","journey"]],
+[["族","family, tribe: the same banner over an arrow"],["遊","(N3) to play: the banner taken onto the road"]],
+["{来月|らいげつ}、{京都|きょうと}へ{旅行|りょこう}に{行|い}きます。","Next month I am taking a trip to Kyoto."]);
+
+K("族",["family","tribe"],["ゾク"],[],"方|direction",[["㫃","banner"],["矢","arrow"]],
+"会意 compound ideograph",
+"The clan banner with an arrow 矢 beneath it: the group that marches and fights under one flag. Tribe, and in modern life, family.",
+"One banner, shared <b>arrows</b>: a <b>tribe</b>, a <b>family</b>.",
+[["家族","かぞく","family"],["民族","みんぞく","an ethnic people"]],
+[["旅","journey: the same banner with marchers"],["矢","(N2) arrow: the piece beneath the flag"]],
+["{家族|かぞく}は{両親|りょうしん}と{妹|いもうと}の{四人|よにん}です。","My family is four people: my parents and my little sister."]);
+
+K("早",["early"],["ソウ"],["はや.い"],"日|sun",[["日","sun"],["十","first stalk"]],
+"会意 compound ideograph",
+"The sun 日 just clearing the first stalk of the morning: daybreak. Early, and by extension quick to happen.",
+"The sun barely above the stalks: <b>early</b>.",
+[["早い","はやい","early"],["早く","はやく","early, quickly"],["早起き","はやおき","early rising"]],
+[["速","(N3) fast: speed, where 早 is earliness"],["草","(N3) grass: 早 wearing a grass crown"],["百","(N5) hundred: a bar instead of a cross"]],
+["{明日|あした}は{早|はや}く{起|お}きなければなりません。","Tomorrow I have to get up early."]);
+
+K("明",["bright","clear"],["メイ","ミョウ"],["あか.るい","あ.ける"],"日|sun",[["日","sun"],["月","moon"]],
+"会意 compound ideograph",
+"The sun 日 and the moon 月 side by side: the two brightest things in the sky sharing one character. Bright, clear, and the opening of a new day (夜が明ける).",
+"<b>Sun</b> and <b>moon</b> together: <b>bright</b>.",
+[["明るい","あかるい","bright, cheerful"],["明日","あした","tomorrow"],["説明","せつめい","explanation"]],
+[["映","to project: the sun beside 央 instead"],["朝","morning: sun in the grass, moon still out"],["間","(N5) interval: the sun in a gate"]],
+["この{部屋|へや}は{窓|まど}が{大|おお}きくて{明|あか}るいです。","This room has big windows and is bright."]);
+
+K("映",["reflect","project"],["エイ"],["うつ.る","うつ.す"],"日|sun",[["日","sun"],["央","center (sound)"]],
+"形声 phono-semantic",
+"Sun 日 plus 央, the center, which gives the sound エイ: light striking squarely and casting an image. To reflect, to project, as in 映画, pictures projected by light.",
+"Light hits dead <b>center</b> and casts an image: to <b>project</b>.",
+[["映画","えいが","movie"],["映画館","えいがかん","movie theater"],["映る","うつる","to be reflected"]],
+[["英","England, brilliant: the same 央 under grass"],["明","bright: sun with the moon"],["写","to copy: the other half of photography"]],
+["{週末|しゅうまつ}に{映画|えいが}を{見|み}に{行|い}きませんか。","Shall we go see a movie this weekend?"]);
+
+K("春",["spring"],["シュン"],["はる"],"日|sun",[["𡗗","sprouting plants"],["日","sun"]],
+"会意 compound ideograph",
+"Plants and roots pushing up through the soil with the sun 日 beneath them, warming from below: the season of sprouting. Spring.",
+"Shoots break the soil over a warming <b>sun</b>: <b>spring</b>.",
+[["春","はる","spring"],["春休み","はるやすみ","spring break"]],
+[["昼","noon: a different crown over the sun"],["夏","summer: the season after"],["青","blue-green: the color of new growth"]],
+["{春|はる}になると、{花|はな}がたくさん{咲|さ}きます。","When spring comes, many flowers bloom."]);
+
+K("昨",["yesterday","previous"],["サク"],[],"日|sun",[["日","sun, day"],["乍","freshly cut (sound)"]],
+"形声 phono-semantic",
+"Day 日 plus 乍, the notch just cut, which gives the sound: the day just cut off from now. Yesterday, the most recent past.",
+"The day just <b>cut</b> away from today: <b>yesterday</b>.",
+[["昨日","きのう","yesterday"],["昨年","さくねん","last year"],["昨晩","さくばん","last night"]],
+[["作","to make: a person by the same 乍"],["借","to borrow: a person by 昔"],["晩","evening: another sun compound"]],
+["{昨日|きのう}、{初|はじ}めてこの{漢字|かんじ}を{習|なら}いました。","Yesterday I learned this kanji for the first time."]);
+
+K("昼",["daytime","noon"],["チュウ"],["ひる"],"日|sun",[["尺","measured span"],["日","sun"],["一","horizon"]],
+"会意 compound ideograph",
+"Simplified from 晝: a brush marking off the measured span of daylight, the sun 日 above the horizon line. Daytime, and its middle, noon.",
+"The measured span of the <b>sun</b> above the line: <b>daytime</b>.",
+[["昼","ひる","noon, daytime"],["昼ご飯","ひるごはん","lunch"],["昼休み","ひるやすみ","lunch break"]],
+[["春","spring: a leafier crown over the sun"],["夜","night: the other half of the day"],["書","(N5) to write: the full brush kept"]],
+["{昼|ひる}は{何|なに}を{食|た}べましたか。","What did you eat for lunch?"]);
+
+K("晩",["evening","night"],["バン"],[],"日|sun",[["日","sun"],["免","slipping away (sound)"]],
+"形声 phono-semantic",
+"Sun 日 plus 免, a figure straining to slip free, which gives the sound: the sun escaping below the horizon. Evening, nightfall.",
+"The sun <b>slips free</b> of the sky: <b>evening</b>.",
+[["晩ご飯","ばんごはん","dinner"],["今晩","こんばん","tonight"],["毎晩","まいばん","every evening"]],
+[["勉","exertion: the same 免 with strength"],["夜","night: full dark after 晩"],["昨","yesterday: another sun compound"]],
+["{今晩|こんばん}、{一緒|いっしょ}に{晩|ばん}ご{飯|はん}を{食|た}べましょう。","Let's have dinner together tonight."]);
+
+K("曜",["day of the week"],["ヨウ"],[],"日|sun",[["日","sun"],["羽","feathers"],["隹","bird"]],
+"形声 phono-semantic",
+"Sun 日 plus a pheasant 隹 with gleaming feathers 羽: things that shine in the sky. The seven shining bodies, sun, moon, and five planets, named the seven days of the week.",
+"Seven shining things in the sky name the seven <b>days of the week</b>.",
+[["曜日","ようび","day of the week"],["日曜日","にちようび","Sunday"],["何曜日","なんようび","what day of the week"]],
+[["習","to learn: the same feathers over white"],["集","to gather: the same bird on a tree"]],
+["{今日|きょう}は{何曜日|なんようび}ですか。","What day of the week is it today?"]);
+
+K("有",["have","exist"],["ユウ","ウ"],["あ.る"],"月|flesh",[["𠂇","hand"],["月","meat"]],
+"会意 compound ideograph",
+"A hand 𠂇 holding a cut of meat 月: to have something of value in one's grasp. To possess, to exist.",
+"A <b>hand</b> holding <b>meat</b>: to <b>have</b>.",
+[["有名","ゆうめい","famous"],["有る","ある","to be, have (usually kana)"],["有料","ゆうりょう","paid, fee-charging"]],
+[["右","(N5) right: the same hand over a mouth"],["友","(N5) friend: two hands joined"],["服","clothes: the flesh radical again"]],
+["この{町|まち}は{古|ふる}いお{寺|てら}で{有名|ゆうめい}です。","This town is famous for its old temple."]);
+
+K("服",["clothes"],["フク"],[],"月|flesh",[["月","body"],["𠬝","hand fitting"]],
+"会意 compound ideograph",
+"The body radical 月 with a hand fitting something onto a kneeling figure: making a thing conform to the body. What is fitted to the body: clothes.",
+"Fitted to the <b>body</b>: <b>clothes</b>.",
+[["服","ふく","clothes"],["洋服","ようふく","Western clothes"],["制服","せいふく","uniform"]],
+[["有","to have: a hand and meat"],["朝","morning: shares the right-side moon shape"]],
+["{新|あたら}しい{服|ふく}を{買|か}いに{行|い}きます。","I am going out to buy new clothes."]);
+
+K("朝",["morning"],["チョウ"],["あさ"],"月|moon",[["龺","sun rising in grass"],["月","moon"]],
+"会意 compound ideograph",
+"The sun climbing through the grasses on the left while the moon 月 still hangs on the right: the hour when both share the sky. Morning.",
+"Sun rising, <b>moon</b> not yet gone: <b>morning</b>.",
+[["朝","あさ","morning"],["朝ご飯","あさごはん","breakfast"],["今朝","けさ","this morning"],["毎朝","まいあさ","every morning"]],
+[["明","bright: sun and moon side by side"],["晩","evening: the opposite hour"],["曜","weekday: another sky character"]],
+["{毎朝|まいあさ}{六時|ろくじ}に{起|お}きます。","I get up at six every morning."]);
+
+K("村",["village"],["ソン"],["むら"],"木|tree",[["木","tree"],["寸","hand span, measure"]],
+"会意 compound ideograph",
+"Trees 木 planted at measured hand-spans 寸: an orderly grove marking out a settlement. Village.",
+"Trees planted by <b>hand-measure</b> around the houses: a <b>village</b>.",
+[["村","むら","village"]],
+[["林","woods: two wild trees"],["付","(N3) to attach: a person with the measuring hand"],["時","(N5) time: 寸 lives there too"]],
+["{祖父|そふ}は{小|ちい}さな{村|むら}に{住|す}んでいます。","My grandfather lives in a small village."]);
+
+K("林",["woods","grove"],["リン"],["はやし"],"木|tree",[["木","tree"],["木","tree again"]],
+"会意 compound ideograph",
+"Two trees 木 standing together: more than one tree, fewer than a forest. Woods, a grove.",
+"Two trees: a <b>grove</b>.",
+[["林","はやし","woods, grove"],["森林","しんりん","forest"]],
+[["森","forest: a third tree makes it deep"],["木","(N5) a single tree"],["村","village: a tree with a measure"]],
+["{家|いえ}の{後|うし}ろに{小|ちい}さな{林|はやし}があります。","There is a small grove behind the house."]);
+
+K("森",["forest"],["シン"],["もり"],"木|tree",[["木","tree, times three"]],
+"会意 compound ideograph",
+"Three trees 木: trees beyond counting, deep enough to lose the light. Forest.",
+"Three trees deep: a <b>forest</b>.",
+[["森","もり","forest"]],
+[["林","woods: one tree fewer"],["木","(N5) a single tree"]],
+["{森|もり}の{中|なか}は{夏|なつ}でも{涼|すず}しいです。","Inside the forest it is cool even in summer."]);
+
+K("業",["business","occupation"],["ギョウ","ゴウ"],["わざ"],"木|tree",[["𤎸","instrument rack"],["木","wooden stand"]],
+"象形 pictograph",
+"A notched wooden rack for hanging ritual bells and drums: the work of skilled hands. The craftsman's work became occupation, trade, business.",
+"The craftsman's <b>rack</b>: his trade, his <b>business</b>.",
+[["授業","じゅぎょう","class, lesson"],["卒業","そつぎょう","graduation"],["工業","こうぎょう","industry"]],
+[["楽","music: the rack actually strung and played"],["薬","medicine: 楽 under a grass crown"]],
+["{授業|じゅぎょう}は{九時|くじ}に{始|はじ}まります。","Class starts at nine."]);
+
+K("楽",["music","pleasant","easy"],["ガク","ラク"],["たの.しい"],"木|tree",[["白","drum"],["幺","strings"],["木","wooden stand"]],
+"象形 pictograph",
+"A wooden stand 木 strung with silk cords and a drum 白 at the center: a complete instrument. Music, and the ease and pleasure it brings.",
+"Drum and strings on a stand: <b>music</b>, and the <b>pleasure</b> of it.",
+[["楽しい","たのしい","fun, enjoyable"],["音楽","おんがく","music"],["楽","らく","easy, comfortable"]],
+[["薬","medicine: the same character healing under grass"],["業","occupation: the bare rack, unplayed"]],
+["{音楽|おんがく}を{聞|き}きながら{勉強|べんきょう}します。","I study while listening to music."]);
+
+K("歌",["song","sing"],["カ"],["うた","うた.う"],"欠|open mouth",[["哥","stacked voices (sound)"],["欠","person with open mouth"]],
+"形声 phono-semantic",
+"Two 可 stacked on the left, voices carrying, plus 欠, a person with mouth wide open: voiced sound pouring out. Song.",
+"Mouth wide open, voice on voice: a <b>song</b>.",
+[["歌","うた","song"],["歌う","うたう","to sing"],["歌手","かしゅ","singer"]],
+[["飲","to drink: the same open-mouthed figure 欠"],["可","(N3) possible: one of the stacked voices"]],
+["カラオケで{日本|にほん}の{歌|うた}を{歌|うた}いました。","I sang Japanese songs at karaoke."]);
+
+K("止",["stop"],["シ"],["と.まる","と.める"],"止|stop",[["止","footprint"]],
+"象形 pictograph",
+"A footprint: a foot planted firmly on the ground, going no further. To stop.",
+"A foot planted flat: <b>stop</b>.",
+[["止まる","とまる","to stop (intr.)"],["止める","とめる","to stop (tr.)"],["中止","ちゅうし","cancellation"]],
+[["正","correct: the foot walking a straight line"],["歩","to walk: two feet in motion"],["足","foot: the whole leg"]],
+["{事故|じこ}で{電車|でんしゃ}が{止|と}まっています。","The trains have stopped because of an accident."]);
+
+K("正",["correct","right"],["セイ","ショウ"],["ただ.しい"],"止|stop",[["一","target line"],["止","advancing foot"]],
+"会意 compound ideograph",
+"A foot 止 advancing straight toward a line 一: marching directly at the mark, no wavering. Straight, correct, proper.",
+"A foot walking dead straight to the line: <b>correct</b>.",
+[["正しい","ただしい","correct"],["お正月","おしょうがつ","New Year"],["正解","せいかい","correct answer"]],
+[["止","to stop: the foot without the line"],["歩","to walk: two feet"],["政","(N3) politics: 正 with a striking hand"]],
+["{正|ただ}しい{読|よ}み{方|かた}を{選|えら}んでください。","Please choose the correct reading."]);
+
+K("歩",["walk"],["ホ","ブ"],["ある.く","あゆ.む"],"止|stop",[["止","right foot"],["少","left foot"]],
+"会意 compound ideograph",
+"Two footprints, one above the other: the left foot and the right foot taking turns. To walk.",
+"Right foot, left foot: to <b>walk</b>.",
+[["歩く","あるく","to walk"],["散歩","さんぽ","a stroll"],["歩道","ほどう","sidewalk"]],
+[["止","to stop: a single planted foot"],["正","correct: a foot on a straight line"],["走","to run: the faster gait"]],
+["{駅|えき}まで{歩|ある}いて{十分|じゅっぷん}かかります。","It takes ten minutes to walk to the station."]);
+
+K("死",["death","die"],["シ"],["し.ぬ"],"歹|bare bones",[["歹","bare bones"],["匕","kneeling person"]],
+"会意 compound ideograph",
+"Bare bones 歹 with a person 匕 kneeling beside them: mourning at the remains. Death.",
+"Kneeling beside the <b>bones</b>: <b>death</b>.",
+[["死ぬ","しぬ","to die"],["死","し","death"]],
+[["化","(N3) to change: the same kneeling figure, transformed"],["列","(N3) row: the bones beside a blade"]],
+["{飼|か}っていた{金魚|きんぎょ}が{死|し}んでしまいました。","The goldfish we kept died."]);
+
+K("民",["people","nation"],["ミン"],["たみ"],"氏|clan",[["氏","clan"],["一","piercing mark"]],
+"象形 pictograph",
+"A hard origin: an eye pierced by a needle, the ancient mark of a captive. The ruled masses, which in time became simply the people of a nation.",
+"From captives to citizens: the <b>people</b>.",
+[["国民","こくみん","the people of a nation"],["市民","しみん","citizens"]],
+[["氏","(N3) family name: the shape beneath"],["眠","(N3) to sleep: an eye beside 民"]],
+["この{国|くに}の{国民|こくみん}は{約|やく}{一億人|いちおくにん}です。","This country's population is about one hundred million."]);
+
+K("池",["pond"],["チ"],["いけ"],"氵|water",[["氵","water"],["也","winding shape (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 也, a winding shape that gives the sound: water gathered in a winding hollow. A pond. It also hides inside 電池, a battery, a pond of stored electricity.",
+"Water pooled in a winding hollow: a <b>pond</b>.",
+[["池","いけ","pond"],["電池","でんち","battery"]],
+[["地","ground: earth with the same 也"],["海","sea: the great water"],["他","(N3) other: a person with 也"]],
+["{公園|こうえん}の{池|いけ}に{鳥|とり}がいます。","There are birds on the pond in the park."]);
+
+K("注",["pour","attention"],["チュウ"],["そそ.ぐ"],"氵|water",[["氵","water"],["主","master (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 主, which gives the sound: water poured exactly where directed. To pour, and to pour one's mind onto something: attention (注意), an order (注文).",
+"<b>Pour</b> the water, and your <b>attention</b>, exactly there.",
+[["注意","ちゅうい","attention, caution"],["注文","ちゅうもん","order (at a shop)"]],
+[["住","to live: a person with 主"],["主","master: the aim itself"],["柱","(N3) pillar"]],
+["{足元|あしもと}に{注意|ちゅうい}してください。","Please watch your step."]);
+
+K("洋",["ocean","Western"],["ヨウ"],[],"氵|water",[["氵","water"],["羊","sheep (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 羊, the sheep, which gives the sound ヨウ: waters vast beyond crossing. The open ocean, and the Western things that came across it.",
+"Waters wide as a flock is woolly: the <b>ocean</b>, and the <b>West</b> beyond it.",
+[["洋服","ようふく","Western clothes"],["洋食","ようしょく","Western food"],["西洋","せいよう","the West"]],
+[["海","sea: the nearer water"],["様","(N3) Mr., Ms.: the same sheep by a tree"],["注","to pour"]],
+["{今日|きょう}の{晩|ばん}ご{飯|はん}は{洋食|ようしょく}にしましょう。","Let's have Western food for dinner tonight."]);
+
+K("洗",["wash"],["セン"],["あら.う"],"氵|water",[["氵","water"],["先","bare feet first (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 先, originally a bare foot stepping ahead, which gives the sound: water running over the feet. To wash.",
+"Water over bare feet: to <b>wash</b>.",
+[["洗う","あらう","to wash"],["洗濯","せんたく","laundry"],["お手洗い","おてあらい","restroom"]],
+[["先","(N5) ahead, previous: the feet being washed"],["流","(N3) to flow: water on the move"]],
+["{食事|しょくじ}の{前|まえ}に{手|て}を{洗|あら}いましょう。","Let's wash our hands before the meal."]);
+
+K("海",["sea"],["カイ"],["うみ"],"氵|water",[["氵","water"],["毎","every, mother (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 毎, which grew from the character for mother and gives the sound: the mother of all waters, the water every river returns to. The sea.",
+"The <b>mother</b> of all waters: the <b>sea</b>.",
+[["海","うみ","sea"],["海外","かいがい","overseas"]],
+[["毎","(N5) every: the right side alone"],["池","pond: the smallest water"],["湖","(N3) lake"]],
+["{夏|なつ}は{海|うみ}で{泳|およ}ぐのが{好|す}きです。","In summer I like swimming in the sea."]);
+
+K("漢",["China","Han"],["カン"],[],"氵|water",[["氵","water"],["堇","parched clay (sound)"]],
+"形声 phono-semantic",
+"Water 氵 plus 堇, parched clay, which gives the sound: originally the name of the Han River. The river named the Han dynasty, and the dynasty named the characters: 漢字.",
+"The river that named a dynasty, that named these very <b>characters</b>.",
+[["漢字","かんじ","kanji, Chinese characters"]],
+[["難","(N3) difficult: the same right side, a bird instead of water"],["海","sea"]],
+["{漢字|かんじ}の{歴史|れきし}はとても{長|なが}いです。","The history of kanji is very long."]);
+
+K("牛",["cow","ox"],["ギュウ"],["うし"],"牛|cow",[["牛","horned ox head"]],
+"象形 pictograph",
+"An ox head seen straight on, horns rising above the crown. The stroke piercing the top is the horn.",
+"Horns over the crown: a <b>cow</b>.",
+[["牛","うし","cow"],["牛肉","ぎゅうにく","beef"],["牛乳","ぎゅうにゅう","milk"]],
+[["午","(N5) noon: no horn breaks the top"],["半","(N5) half: two extra dots"],["年","(N5) year"]],
+["{牛乳|ぎゅうにゅう}を{一本|いっぽん}{買|か}ってきてください。","Please go buy a carton of milk."]);
+
+K("物",["thing"],["ブツ","モツ"],["もの"],"牛|cow",[["牜","cow"],["勿","streamers of many colors (sound)"]],
+"形声 phono-semantic",
+"Cow 牜 plus 勿, streamers of mixed colors, which gives the sound: oxen of every color and kind. Things of all kinds, the physical counterpart of 事.",
+"Cattle of every color: <b>things</b> of every kind.",
+[["物","もの","thing"],["買い物","かいもの","shopping"],["食べ物","たべもの","food"],["動物","どうぶつ","animal"]],
+[["特","special: the temple ox"],["牛","the ox alone"],["事","matter: the intangible thing"]],
+["デパートで{買|か}い{物|もの}をしました。","I did some shopping at the department store."]);
+
+K("特",["special"],["トク"],[],"牛|cow",[["牜","cow"],["寺","temple"]],
+"会意 compound ideograph",
+"The ox 牜 raised at the temple 寺: the one animal set apart from the herd for the gods. Special, singled out.",
+"The temple's own ox, set apart: <b>special</b>.",
+[["特に","とくに","especially"],["特別","とくべつ","special"],["特急","とっきゅう","limited express"]],
+[["持","to hold: a hand at the temple"],["待","to wait: steps at the temple"],["物","thing: the ordinary ox"]],
+["{特|とく}に{予定|よてい}はありません。","I have no particular plans."]);
+
+K("犬",["dog"],["ケン"],["いぬ"],"犬|dog",[["大","body"],["丶","ear"]],
+"象形 pictograph",
+"A dog drawn in profile, rotated upright over the centuries; the dot is the pricked-up ear. Dog.",
+"Big 大 with a pricked <b>ear</b>: a <b>dog</b>.",
+[["犬","いぬ","dog"],["子犬","こいぬ","puppy"]],
+[["大","(N5) big: no ear"],["太","fat: the dot moves inside"],["天","(N5) heaven: a bar on top instead"]],
+["{毎朝|まいあさ}{犬|いぬ}と{散歩|さんぽ}します。","Every morning I walk with my dog."]);
+
+K("理",["reason","logic"],["リ"],[],"王|jade",[["王","jade"],["里","village lanes (sound)"]],
+"形声 phono-semantic",
+"Jade 王 plus 里, a village laid out in orderly lanes, which gives the sound: carving jade along its natural veins. Following the inner grain of things: reason, logic, principle.",
+"Carve the jade along its <b>grain</b>: <b>reason</b>.",
+[["料理","りょうり","cooking"],["理由","りゆう","reason"],["無理","むり","impossible, unreasonable"]],
+[["野","field: the same 里 beside it"],["里","(N2) village: the right side alone"]],
+["{遅|おく}れた{理由|りゆう}を{教|おし}えてください。","Please tell me the reason you were late."]);
+
+K("産",["give birth","produce"],["サン"],["う.む","う.まれる"],"生|life",[["立","adorned brow"],["厂","cliff"],["生","life sprouting"]],
+"会意 compound ideograph",
+"An adorned brow above and 生, life sprouting, below: new life coming forth in beauty. To give birth, and for the land, to produce.",
+"New <b>life</b> comes forth: to <b>give birth</b>, to <b>produce</b>.",
+[["お土産","おみやげ","souvenir"],["産業","さんぎょう","industry"]],
+[["生","(N5) life, birth: the sprout at its base"],["度","degree: a similar sheltering top"]],
+["{京都|きょうと}でお{土産|みやげ}を{買|か}いました。","I bought souvenirs in Kyoto."]);
+
+K("用",["use","business"],["ヨウ"],["もち.いる"],"用|use",[["用","pierced bucket"]],
+"象形 pictograph",
+"A bucket pierced for a handle, or in another account a sturdy fence: a tool taken up every single day. To use; an errand that needs doing.",
+"The everyday bucket: in <b>use</b> daily.",
+[["用事","ようじ","errand, business"],["用意","ようい","preparation"],["利用","りよう","use, utilization"]],
+[["月","(N5) moon: the legs curve, nothing pierces"],["田","field: fully boxed in"]],
+["ちょっと{用事|ようじ}があるので、お{先|さき}に{失礼|しつれい}します。","I have a little errand, so please excuse me first."]);
+
+K("田",["rice field"],["デン"],["た"],"田|field",[["田","divided paddy"]],
+"象形 pictograph",
+"A rice paddy seen from above, divided by raised paths into four plots. The foundation of the old economy, and of many family names.",
+"Four plots and their paths: a <b>rice field</b>.",
+[["田んぼ","たんぼ","rice paddy"],["田中さん","たなかさん","Tanaka (a common surname)"]],
+[["由","(N3) reason: the stem pokes out the top"],["町","town: the fields with a street block"],["画","picture: a field in a frame"]],
+["{電車|でんしゃ}の{窓|まど}から{田|た}んぼが{見|み}えます。","You can see rice fields from the train window."]);
+
+K("町",["town"],["チョウ"],["まち"],"田|field",[["田","fields"],["丁","street block (sound)"]],
+"形声 phono-semantic",
+"Fields 田 plus 丁, a block or nail, which gives the sound: farmland divided into blocks of streets and houses. A town.",
+"Fields cut into street <b>blocks</b>: a <b>town</b>.",
+[["町","まち","town"]],
+[["田","field: what the town grew out of"],["村","village: smaller and greener"],["丁","(N3) block: the right side alone"]],
+["この{町|まち}は{魚|さかな}がおいしいことで{有名|ゆうめい}です。","This town is famous for its delicious fish."]);
+
+K("画",["picture","stroke"],["ガ","カク"],[],"田|field",[["一","brush line"],["田","field"],["凵","frame"]],
+"会意 compound ideograph",
+"Simplified from 畫, a hand with a brush drawing the boundary lines around a field 田: to mark out, to draw. A picture, a plan, and the counted strokes of a character.",
+"Draw the field's boundary lines: a <b>picture</b>, a <b>plan</b>.",
+[["映画","えいが","movie"],["計画","けいかく","plan"],["画家","がか","painter"]],
+[["田","field: the drawing's subject"],["面","(N3) face, surface: a similar framed shape"]],
+["{夏休|なつやす}みの{計画|けいかく}を{立|た}てましょう。","Let's make a plan for summer vacation."]);
+
+K("界",["boundary","world"],["カイ"],[],"田|field",[["田","fields"],["介","person standing between (sound)"]],
+"形声 phono-semantic",
+"Fields 田 plus 介, a figure standing between, which gives the sound: the ridges that divide field from field. Boundaries, and the bounded realm inside them: the world.",
+"The lines between the fields: a <b>boundary</b>, and the <b>world</b> inside it.",
+[["世界","せかい","the world"]],
+[["世","generation: the other half of 世界"],["田","field: where the boundaries run"]],
+["{世界|せかい}には{七十億人|ななじゅうおくにん}{以上|いじょう}の{人|ひと}がいます。","There are more than seven billion people in the world."]);
+
+K("病",["illness"],["ビョウ"],["やまい"],"疒|sickness",[["疒","person on a sickbed"],["丙","(sound)"]],
+"形声 phono-semantic",
+"疒 is a person lying on a bed, the radical of every sickness character; 丙 gives the sound. Laid up in bed: illness.",
+"Flat on the <b>sickbed</b>: <b>illness</b>.",
+[["病気","びょうき","illness"],["病院","びょういん","hospital"]],
+[["痛","(N3) pain: the same sickbed"],["院","institution: where 病 gets treated"]],
+["{病気|びょうき}のときは、ゆっくり{休|やす}んでください。","When you are sick, please rest well."]);
+
+K("発",["depart","emit"],["ハツ","ホツ"],[],"癶|stepping out",[["癶","feet braced apart"],["弓","bow (in the old form)"]],
+"会意 compound ideograph",
+"Simplified from 發: two feet braced apart 癶 and a bow loosed: the arrow leaving the string. To shoot forth: to depart, to emit, to begin.",
+"Feet braced, the arrow flies: to <b>depart</b>, to <b>emit</b>.",
+[["出発","しゅっぱつ","departure"],["発音","はつおん","pronunciation"],["発表","はっぴょう","presentation"]],
+[["登","(N3) to climb: the same braced feet over a pedestal"],["究","to research: a different kind of launch"]],
+["{九時|くじ}に{東京|とうきょう}を{出発|しゅっぱつ}します。","We depart Tokyo at nine."]);
+
+K("的",["target","-like"],["テキ"],["まと"],"白|white",[["白","white center"],["勺","ladle (sound)"]],
+"形声 phono-semantic",
+"White 白 plus 勺, a ladle, which gives the sound: the bright white spot at the center of a target. The mark aimed at, and the suffix 〜的 that aims a noun at an adjective.",
+"The white spot you aim at: the <b>target</b>.",
+[["目的","もくてき","purpose, goal"],["〜的","てき","-like, -ish (suffix)"]],
+[["白","(N5) white: the bullseye alone"],["約","(N3) roughly: a thread tied to the same 勺"]],
+["{今年|ことし}の{目的|もくてき}はN4に{合格|ごうかく}することです。","This year's goal is to pass the N4."]);
+
+K("目",["eye"],["モク"],["め"],"目|eye",[["目","upright eye"]],
+"象形 pictograph",
+"An eye with its pupil, turned upright over the centuries to fit the writing grid. Eye, and by extension items and ordinal endings: 一番目.",
+"An eye stood on end: the <b>eye</b>.",
+[["目","め","eye"],["目的","もくてき","purpose"],["一番目","いちばんめ","the first"],["真面目","まじめ","serious, diligent"]],
+[["日","(N5) sun: one bar fewer"],["自","self: a nose added on top"],["見","(N5) to see: the eye on legs"]],
+["{目|め}を{閉|と}じて、{音楽|おんがく}を{聞|き}きました。","I closed my eyes and listened to the music."]);
+
+K("直",["straight","fix"],["チョク","ジキ"],["なお.す","なお.る"],"目|eye",[["十","sight line"],["目","eye"],["乚","bent corner"]],
+"会意 compound ideograph",
+"An eye 目 sighting dead ahead along a line 十, with a bent corner 乚 beneath being trued up. Straight, honest, and to set straight: to fix.",
+"Sight along the line and true up the bend: <b>straight</b>, to <b>fix</b>.",
+[["直す","なおす","to fix, correct"],["直る","なおる","to be fixed"],["正直","しょうじき","honest"]],
+[["真","true: 直 raised on a pedestal"],["置","(N3) to put: 直 under a net"]],
+["{自転車|じてんしゃ}を{直|なお}してもらいました。","I had my bicycle fixed."]);
+
+K("真",["true","real"],["シン"],["ま"],"目|eye",[["直","straight"],["八","pedestal"]],
+"会意 compound ideograph",
+"直, what is perfectly straight, raised on a pedestal for all to see. What stands up straight under inspection is true, real, exact: 真ん中, the exact middle.",
+"The straight thing on a pedestal: <b>true</b>.",
+[["写真","しゃしん","photograph"],["真ん中","まんなか","the very middle"],["真面目","まじめ","serious"]],
+[["直","straight: the truth before the pedestal"],["写","to copy: 写真's other half"]],
+["テーブルの{真|ま}ん{中|なか}に{花|はな}を{置|お}きました。","I put flowers in the very middle of the table."]);
+
+K("着",["wear","arrive"],["チャク"],["き.る","つ.く"],"目|eye",[["羊","wool"],["目","eye"]],
+"会意 compound ideograph",
+"A variant of 著: sheep's wool 羊 pulled down over the body to the eyes 目. Clothing settling onto the body gave to wear, and settling into place gave to arrive.",
+"Wool pulled down to the <b>eyes</b>: to <b>wear</b>; settled in place: to <b>arrive</b>.",
+[["着る","きる","to wear"],["着く","つく","to arrive"],["上着","うわぎ","jacket"]],
+[["差","(N3) difference: the same wool crown"],["目","eye: peeking out below"]],
+["{駅|えき}に{着|つ}いたら{電話|でんわ}してください。","Please call me when you arrive at the station."]);
+
+K("知",["know"],["チ"],["し.る"],"矢|arrow",[["矢","arrow"],["口","mouth"]],
+"会意 compound ideograph",
+"An arrow 矢 beside a mouth 口: words that fly straight and strike the mark. To know is to answer swift and true.",
+"Words fast and straight as <b>arrows</b>: to <b>know</b>.",
+[["知る","しる","to know"],["知り合い","しりあい","acquaintance"],["お知らせ","おしらせ","notice"]],
+[["短","short: the same arrow beside a dish"],["和","(N3) harmony: grain beside the mouth"]],
+["その{店|みせ}なら、よく{知|し}っています。","That shop? I know it well."]);
+
+K("短",["short"],["タン"],["みじか.い"],"矢|arrow",[["矢","arrow"],["豆","pedestal dish"]],
+"会意 compound ideograph",
+"An arrow 矢 and a pedestal dish 豆: in the old world both were bywords for short measures. Short.",
+"Measure it against an arrow: <b>short</b>.",
+[["短い","みじかい","short"]],
+[["知","to know: the arrow with a mouth"],["長","(N5) long: the opposite"],["豆","(N3) bean: the right side alone"]],
+["{夏|なつ}の{夜|よる}は{短|みじか}いです。","Summer nights are short."]);
+
+K("研",["polish","research"],["ケン"],["と.ぐ"],"石|stone",[["石","stone"],["开","made level (sound)"]],
+"形声 phono-semantic",
+"Stone 石 plus 开, made flat and even, which gives the sound: grinding a blade on stone until it is even. To polish, and to polish knowledge: research.",
+"Grind it on the <b>stone</b> until even: to <b>polish</b>, to <b>research</b>.",
+[["研究","けんきゅう","research"],["研究者","けんきゅうしゃ","researcher"]],
+[["究","research's other half: digging to the depths"],["開","to open: the same 开 inside the gate"]],
+["{兄|あに}は{大学|だいがく}でロボットの{研究|けんきゅう}をしています。","My brother does robotics research at a university."]);
+
+K("私",["I","private"],["シ"],["わたし","わたくし"],"禾|grain",[["禾","grain stalk"],["厶","raked to oneself"]],
+"会意 compound ideograph",
+"A grain stalk 禾 with 厶, an arm raking it toward oneself: grain kept for oneself. Private, and the humble word for oneself: I.",
+"Grain raked in toward yourself: <b>private</b>, <b>I</b>.",
+[["私","わたし","I"],["私たち","わたしたち","we"],["私立","しりつ","private (school)"]],
+[["公","public: the opposite, dividing the private away"],["秋","autumn: the same grain beside fire"]],
+["{私|わたし}は{毎日|まいにち}{漢字|かんじ}を{勉強|べんきょう}しています。","I study kanji every day."]);
+
+K("秋",["autumn"],["シュウ"],["あき"],"禾|grain",[["禾","grain stalk"],["火","fire"]],
+"会意 compound ideograph",
+"A grain stalk 禾 beside fire 火: the harvest ripened to fire-color, and the stubble burned after the reaping. Autumn.",
+"The grain turns the color of <b>fire</b>: <b>autumn</b>.",
+[["秋","あき","autumn"]],
+[["私","I: the same grain, raked to oneself"],["火","(N5) fire: the right side alone"],["春","spring: the season across the year"]],
+["{秋|あき}は{食|た}べ{物|もの}がおいしい{季節|きせつ}です。","Autumn is the season when food tastes best."]);
+
+K("究",["research","probe"],["キュウ"],["きわ.める"],"穴|cave",[["穴","cave opening"],["九","bent reaching arm (sound)"]],
+"形声 phono-semantic",
+"A cave mouth 穴 plus 九, an arm bent to its furthest reach, which gives the sound: groping to the very back of the cave. To probe to the end: research.",
+"Reach to the very back of the <b>cave</b>: to <b>research</b>.",
+[["研究","けんきゅう","research"]],
+[["空","(N5) sky, empty: the same cave roof"],["突","(N3) to thrust: the cave with a dog bursting out"],["九","(N5) nine: the arm alone"]],
+["{何|なに}を{研究|けんきゅう}しているんですか。","What are you researching?"]);
+
+K("答",["answer"],["トウ"],["こた.える","こた.え"],"竹|bamboo",[["竹","bamboo"],["合","to fit"]],
+"会意 compound ideograph",
+"Bamboo 竹 over 合, to fit: bamboo tally slips split in two, whose halves must match. The reply that fits the question exactly: an answer.",
+"The bamboo halves <b>fit</b>: an <b>answer</b> that matches the question.",
+[["答える","こたえる","to answer"],["答え","こたえ","an answer"]],
+[["合","to fit: an answer must fit"],["竹","(N3) bamboo: the crown alone"],["筆? 質","quality: the exam pair 質問と答え"]],
+["{次|つぎ}の{質問|しつもん}に{答|こた}えてください。","Please answer the next question."]);
+
+K("紙",["paper"],["シ"],["かみ"],"糸|thread",[["糸","thread, fiber"],["氏","clan (sound)"]],
+"形声 phono-semantic",
+"Thread 糸 plus 氏, which gives the sound シ: plant fibers beaten flat and matted into sheets. Paper, born from thread.",
+"Fibers pressed flat: <b>paper</b>.",
+[["紙","かみ","paper"],["手紙","てがみ","letter"]],
+[["終","to end: the same thread, tied off"],["氏","(N3) family name: the right side alone"]],
+["{紙|かみ}に{名前|なまえ}を{書|か}いてください。","Please write your name on the paper."]);
+
+K("終",["end","finish"],["シュウ"],["お.わる","お.える"],"糸|thread",[["糸","thread"],["冬","winter, the year's end"]],
+"会意 compound ideograph",
+"Thread 糸 plus 冬, winter: the thread tied off at both ends, like the year tied off in ice. To end, to finish.",
+"Tie off the <b>thread</b> like the year in <b>winter</b>: to <b>finish</b>.",
+[["終わる","おわる","to end"],["終わり","おわり","the end"],["終電","しゅうでん","last train"]],
+[["冬","winter: the right side, the season of endings"],["紙","paper: the same thread"],["始","to begin: the opposite"]],
+["{映画|えいが}は{十時|じゅうじ}に{終|お}わります。","The movie ends at ten."]);
+
+K("習",["learn","practice"],["シュウ"],["なら.う"],"羽|feathers",[["羽","wings"],["白","white"]],
+"会意 compound ideograph",
+"Wings 羽 over white 白: a fledgling flapping its pale new wings again and again at the edge of the nest. Repetition until flight: to learn, to practice.",
+"The fledgling flaps and flaps: to <b>practice</b>, to <b>learn</b>.",
+[["習う","ならう","to learn (from someone)"],["練習","れんしゅう","practice"],["復習","ふくしゅう","review"]],
+[["曜","weekday: the same feathers on the shining bird"],["白","(N5) white: beneath the wings"]],
+["{日本語|にほんご}は{二年|にねん}{前|まえ}から{習|なら}っています。","I have been learning Japanese for two years."]);
+
+K("考",["consider","think"],["コウ"],["かんが.える"],"耂|old person",[["耂","elder"],["丂","bent breath"]],
+"会意 compound ideograph",
+"An elder 耂 bent over 丂, breath curling in long deliberation: the old one turning a matter over slowly. To consider.",
+"The <b>elder</b> bends over the problem: to <b>consider</b>.",
+[["考える","かんがえる","to think, consider"],["考え","かんがえ","a thought, idea"]],
+[["老","(N3) old age: the elder without the hook"],["教","to teach: what the elder does next"],["者","person: a similar crown"]],
+["{答|こた}えをもう{少|すこ}し{考|かんが}えさせてください。","Let me think about the answer a little longer."]);
+
+K("者",["person"],["シャ"],["もの"],"耂|old person",[["耂","crown"],["日","hearth"]],
+"象形 pictograph",
+"Originally brushwood burning on a hearth; the character was borrowed early for its sound to mean the one who does: person. 医者, the one who heals; 学者, the one who studies.",
+"The one who does the thing: a <b>person</b> of that trade.",
+[["医者","いしゃ","doctor"],["学者","がくしゃ","scholar"],["若者","わかもの","young person"]],
+[["考","to consider: the same crown, thinking"],["暑","(N3) hot: 者 baking under the sun"],["都","capital: 者 beside the city wall"]],
+["{将来|しょうらい}、{医者|いしゃ}になりたいです。","In the future I want to become a doctor."]);
+
+K("肉",["meat"],["ニク"],[],"肉|meat",[["肉","cut of meat"]],
+"象形 pictograph",
+"A cut of meat with the striations of the flesh drawn inside. Squeezed into the left side of characters it becomes 月, the flesh radical, easily mistaken for the moon.",
+"A rib cut, striations showing: <b>meat</b>.",
+[["肉","にく","meat"],["牛肉","ぎゅうにく","beef"],["豚肉","ぶたにく","pork"]],
+[["内","(N3) inside: one figure within, not two"],["月","(N5) moon: what 肉 turns into at the side of a character"]],
+["{肉|にく}と{野菜|やさい}を{買|か}って{帰|かえ}ります。","I will buy meat and vegetables on the way home."]);
+
+K("自",["self"],["ジ","シ"],["みずか.ら"],"自|self",[["自","nose"]],
+"象形 pictograph",
+"A nose, drawn front-on. To this day Japanese speakers point at their own nose to say me: the nose became the self.",
+"Point at your <b>nose</b>: your<b>self</b>.",
+[["自分","じぶん","oneself"],["自転車","じてんしゃ","bicycle"],["自由","じゆう","freedom"]],
+[["目","eye: no bridge stroke on top"],["白","(N5) white: one bar fewer inside"]],
+["{自分|じぶん}のペースで{勉強|べんきょう}すればいいですよ。","It is fine to study at your own pace."]);
+
+K("色",["color"],["ショク","シキ"],["いろ"],"色|color",[["𠂊","figure leaning close"],["巴","kneeling figure"]],
+"会意 compound ideograph",
+"Two figures leaning close, one over the other, faces flushing: the color that rises in a face. From the blush of feeling to color in general.",
+"The <b>color</b> rising in a face: color itself.",
+[["色","いろ","color"],["色々","いろいろ","various"],["茶色","ちゃいろ","brown"]],
+[["包","(N3) to wrap: a similar wrapped figure"],["急","to hurry: a similar crown over a different base"]],
+["{秋|あき}は{山|やま}の{色|いろ}が{変|か}わります。","In autumn the colors of the mountains change."]);
+
+K("英",["brilliant","England"],["エイ"],[],"艹|grass",[["艹","grass, flowers"],["央","center (sound)"]],
+"形声 phono-semantic",
+"Grass 艹 plus 央, the center, which gives the sound: the flower at the very center of bloom, the finest of the field. Outstanding, brilliant; borrowed to write England, 英国.",
+"The single <b>brightest bloom</b>: brilliant, and Britain.",
+[["英語","えいご","English language"],["英会話","えいかいわ","English conversation"]],
+[["映","to project: the same 央 beside the sun"],["花","(N5) flower: another grass crown"]],
+["{仕事|しごと}で{英語|えいご}を{使|つか}いますか。","Do you use English at work?"]);
+
+K("茶",["tea"],["チャ","サ"],[],"艹|grass",[["艹","leaves"],["𠆢","picker"],["木","bush"]],
+"会意 compound ideograph",
+"A grass crown 艹, a figure reaching in, and the bush 木 below: leaves picked from the tea plant. Tea, and its color, brown.",
+"Leaves picked from the bush: <b>tea</b>.",
+[["お茶","おちゃ","tea"],["茶色","ちゃいろ","brown"],["喫茶店","きっさてん","coffee shop"]],
+[["菜","greens: the picking hand kept, for eating"],["薬","medicine: the healing leaves"],["木","(N5) tree: the bush at the base"]],
+["{熱|あつ}いお{茶|ちゃ}をどうぞ。","Please have some hot tea."]);
+
+K("菜",["vegetable","greens"],["サイ"],["な"],"艹|grass",[["艹","grass"],["采","hand picking from a tree"]],
+"会意 compound ideograph",
+"Grass 艹 over 采, a hand picking from a tree: greens gathered by hand. Vegetables.",
+"Greens picked by <b>hand</b>: <b>vegetables</b>.",
+[["野菜","やさい","vegetables"]],
+[["茶","tea: picked leaves for drinking"],["薬","medicine: picked herbs for healing"],["採","(N2) to gather: the picking hand with 扌"]],
+["{野菜|やさい}をもっと{食|た}べたほうがいいですよ。","You should eat more vegetables."]);
+
+K("薬",["medicine"],["ヤク"],["くすり"],"艹|grass",[["艹","herbs"],["楽","ease, comfort"]],
+"会意 compound ideograph",
+"Herbs 艹 over 楽, ease and comfort: the plants that bring the body back to ease. Medicine.",
+"The <b>herbs</b> that restore <b>ease</b>: <b>medicine</b>.",
+[["薬","くすり","medicine"],["薬局","やっきょく","pharmacy"],["目薬","めぐすり","eye drops"]],
+[["楽","comfort: medicine minus the herbs"],["茶","tea: the everyday brew"],["菜","greens: the edible pick"]],
+["{食後|しょくご}にこの{薬|くすり}を{飲|の}んでください。","Please take this medicine after meals."]);
+
+K("親",["parent","intimate"],["シン"],["おや","した.しい"],"見|see",[["立","standing"],["木","tree"],["見","watching"]],
+"形声 phono-semantic",
+"The left side 亲 gives the sound; the classroom story reads the whole: a parent standing 立 on a tree 木, watching 見 down the road for the child. Parent, and the closeness of family: intimate.",
+"Standing on the tree, <b>watching</b> for the child: a <b>parent</b>.",
+[["親","おや","parent"],["両親","りょうしん","(both) parents"],["親切","しんせつ","kind"]],
+[["新","new: the same left side with an axe"],["見","(N5) to see: the watching half"]],
+["{両親|りょうしん}はカリフォルニアに{住|す}んでいます。","My parents live in California."]);
+
+K("計",["measure","plan"],["ケイ"],["はか.る"],"言|words",[["言","words"],["十","counting to ten"]],
+"会意 compound ideograph",
+"Words 言 plus ten 十: counting aloud to ten. To measure, to total, and to lay out numbered steps: a plan. In 時計, the machine that measures time.",
+"Count it out loud to <b>ten</b>: to <b>measure</b>, to <b>plan</b>.",
+[["時計","とけい","clock, watch"],["計画","けいかく","plan"],["合計","ごうけい","total"]],
+[["言","words: the counting voice"],["話","(N5) to talk: words at greater length"]],
+["{腕|うで}{時計|どけい}を{探|さが}しています。","I am looking for a wristwatch."]);
+
+K("試",["try","test"],["シ"],["ため.す","こころ.みる"],"言|words",[["言","words"],["式","set formula (sound)"]],
+"形声 phono-semantic",
+"Words 言 plus 式, the fixed formula of a ceremony, which gives the sound: putting someone through the set questions. To test, to try.",
+"Question them by the set <b>formula</b>: a <b>test</b>.",
+[["試験","しけん","exam"],["試合","しあい","match, game"],["試す","ためす","to try out"]],
+[["験","exam's other half: the proving"],["式","(N3) ceremony, style: the right side alone"]],
+["{来月|らいげつ}、{日本語|にほんご}の{試験|しけん}を{受|う}けます。","Next month I am taking a Japanese exam."]);
+
+K("説",["explain","theory"],["セツ"],["と.く"],"言|words",[["言","words"],["兌","to loosen (sound)"]],
+"形声 phono-semantic",
+"Words 言 plus 兌, to loosen and release, which gives the sound: words that untangle a knotted matter. To explain; a theory; and in 小説, a story spun from words.",
+"Words that <b>loosen</b> the knot: to <b>explain</b>.",
+[["説明","せつめい","explanation"],["小説","しょうせつ","novel"]],
+[["読","(N5) to read: words beside 売"],["話","(N5) to speak: words at large"]],
+["{先生|せんせい}の{説明|せつめい}はとても{分|わ}かりやすいです。","The teacher's explanations are very easy to understand."]);
+
+K("貸",["lend"],["タイ"],["か.す"],"貝|shell money",[["代","substitute (sound)"],["貝","money"]],
+"形声 phono-semantic",
+"代, to substitute, over 貝, shell money: money handed over in place of the thing, to be returned. To lend.",
+"<b>Money</b> handed over as a <b>substitute</b>, for now: to <b>lend</b>.",
+[["貸す","かす","to lend"]],
+[["借","to borrow: the mirror action"],["代","substitute: the top half"],["買","(N5) to buy: money kept for good"],["質","quality, pawn: money weighed"]],
+["ペンを{貸|か}してくれませんか。","Could you lend me a pen?"]);
+
+K("質",["quality","substance"],["シツ","シチ"],[],"貝|shell money",[["斤","axe, doubled"],["貝","money"]],
+"会意 compound ideograph",
+"Two axes 斤 over money 貝: goods weighed against axe-heads, the old standard of value. The substance a thing is judged by: quality; goods held against a loan: a pawn (質屋).",
+"Weigh it against the <b>axes</b>: its true <b>quality</b>.",
+[["質問","しつもん","question"],["質","しつ","quality"]],
+[["貸","to lend: money under 代 instead"],["員","member: money under a mouth"]],
+["{質問|しつもん}してもいいですか。","May I ask a question?"]);
+
+K("赤",["red"],["セキ","シャク"],["あか","あか.い"],"赤|red",[["土","great (from 大)"],["火","fire (altered)"]],
+"会意 compound ideograph",
+"Originally 大, great, over 火, fire: a great blaze. The color of fire: red, and of newborns: 赤ちゃん.",
+"A great <b>fire</b>: <b>red</b>.",
+[["赤い","あかい","red"],["赤ちゃん","あかちゃん","baby"]],
+[["青","blue: the cool opposite"],["黒","black: soot after the fire"],["走","to run: a similar frame in motion"]],
+["{赤|あか}いセーターを{着|き}ている{人|ひと}が{妹|いもうと}です。","The one wearing the red sweater is my little sister."]);
+
+K("走",["run"],["ソウ"],["はし.る"],"走|run",[["土","runner leaning (from 夭)"],["止","foot"]],
+"会意 compound ideograph",
+"A figure leaning hard into a sprint, over a foot 止: arms pumping, body tilted. To run.",
+"Lean forward over flying <b>feet</b>: to <b>run</b>.",
+[["走る","はしる","to run"]],
+[["歩","to walk: the slower feet"],["起","to get up: 走 with a rising body"],["足","foot: the runner's tool"],["赤","red: a similar silhouette"]],
+["{毎朝|まいあさ}{公園|こうえん}を{走|はし}っています。","I run in the park every morning."]);
+
+K("起",["get up","wake"],["キ"],["お.きる","お.こす"],"走|run",[["走","to run"],["己","rising body (sound)"]],
+"形声 phono-semantic",
+"走, to run, plus 己, a bent body rising, which gives the sound: the body coming up off the ground into motion. To get up, to wake, to set in motion.",
+"The body rises into a <b>run</b>: to <b>get up</b>.",
+[["起きる","おきる","to get up, wake"],["起こす","おこす","to wake (someone)"]],
+[["走","to run: what comes after rising"],["記","(N3) to record: words beside the same 己"]],
+["{今朝|けさ}は{六時|ろくじ}に{起|お}きました。","This morning I got up at six."]);
+
+K("足",["foot","leg","suffice"],["ソク"],["あし","た.りる"],"足|foot",[["口","knee"],["止","foot"]],
+"象形 pictograph",
+"The leg from the knee (the box) down to the foot 止. Leg, foot, and the idea of enough: when the legs reach the ground, it suffices (足りる).",
+"Knee to <b>foot</b>: the leg, and just <b>enough</b> to stand on.",
+[["足","あし","foot, leg"],["足りる","たりる","to be enough"]],
+[["走","to run: the leg at speed"],["止","to stop: the foot alone"],["歩","to walk"]],
+["{時間|じかん}が{足|た}りなくて、{最後|さいご}まで{読|よ}めませんでした。","There was not enough time, so I could not read to the end."]);
+
+K("転",["turn","tumble"],["テン"],["ころ.ぶ","ころ.がる"],"車|cart",[["車","wheel"],["云","rolling (sound)"]],
+"形声 phono-semantic",
+"Simplified from 轉: a cart wheel 車 plus 云, curling and rolling, which gives the sound. Wheels going round: to turn, to roll, to tumble over.",
+"The <b>wheel</b> rolls round: to <b>turn</b>, to <b>tumble</b>.",
+[["自転車","じてんしゃ","bicycle"],["運転","うんてん","driving"],["転ぶ","ころぶ","to fall over"]],
+[["車","(N5) cart: the wheel at rest"],["軽","(N3) light: the same cart, easy to pull"]],
+["{雪|ゆき}の{道|みち}で{転|ころ}んでしまいました。","I fell over on the snowy road."]);
+
+K("近",["near"],["キン"],["ちか.い"],"⻌|road",[["⻌","road"],["斤","axe (sound)"]],
+"形声 phono-semantic",
+"The road radical ⻌ plus 斤, an axe, which gives the sound: within an axe-throw down the road. Near.",
+"Just an axe-throw down the <b>road</b>: <b>near</b>.",
+[["近い","ちかい","near"],["近く","ちかく","nearby"],["近所","きんじょ","neighborhood"],["最近","さいきん","recently"]],
+[["遠","far: the opposite end of the road"],["新","new: the axe at the fresh-cut tree"],["道","(N5) road: the path itself"]],
+["{家|いえ}は{駅|えき}から{近|ちか}いです。","My house is near the station."]);
+
+K("送",["send","see off"],["ソウ"],["おく.る"],"⻌|road",[["⻌","road"],["关","hands offering (sound)"]],
+"形声 phono-semantic",
+"The road ⻌ plus hands lifting an offering, which gives the sound: walking someone out and pressing a parting gift on them. To send, to see off.",
+"Carry the gift down the <b>road</b> with them: to <b>send</b>, to <b>see off</b>.",
+[["送る","おくる","to send; to see off"],["放送","ほうそう","broadcast"]],
+[["近","near: the same road, a shorter errand"],["運","to transport: the heavier load"],["遠","far"]],
+["{写真|しゃしん}をメールで{送|おく}りました。","I sent the photos by email."]);
+
+K("運",["carry","transport","luck"],["ウン"],["はこ.ぶ"],"⻌|road",[["⻌","road"],["軍","army (sound)"]],
+"形声 phono-semantic",
+"The road ⻌ plus 軍, an army with its wagons, which gives the sound: columns moving supplies down the road. To transport; and the way things happen to move: luck, 運がいい.",
+"The <b>army's wagons</b> roll down the road: to <b>carry</b>, and how the wheels turn is <b>luck</b>.",
+[["運ぶ","はこぶ","to carry"],["運転","うんてん","driving"],["運動","うんどう","exercise"],["運","うん","luck"]],
+[["軍","(N3) army: the cargo without the road"],["動","to move: motion without the road"],["連","(N3) to link along"]],
+["この{荷物|にもつ}を{二階|にかい}に{運|はこ}んでください。","Please carry this luggage to the second floor."]);
+
+K("遠",["far"],["エン"],["とお.い"],"⻌|road",[["⻌","road"],["袁","long robes (sound)"]],
+"形声 phono-semantic",
+"The road ⻌ plus 袁, long trailing robes, which gives the sound: dressed for a journey of many days. Far.",
+"Robes for a long <b>road</b>: <b>far</b>.",
+[["遠い","とおい","far"],["遠く","とおく","far away"]],
+[["近","near: the opposite"],["園","(N3) garden: the same 袁 inside walls"],["送","to send: a shorter trip"]],
+["{学校|がっこう}は{家|いえ}から{遠|とお}いですか。","Is school far from your house?"]);
+
+K("都",["capital","metropolis"],["ト","ツ"],["みやこ"],"⻏|city wall",[["者","person (sound)"],["⻏","city wall"]],
+"形声 phono-semantic",
+"者, which gives the sound, beside ⻏, the city wall radical: the walled city where the people gather. The capital; the metropolis, as in 東京都.",
+"All the <b>people</b> inside one great wall: the <b>capital</b>.",
+[["京都","きょうと","Kyoto"],["都合","つごう","convenience, circumstances"],["東京都","とうきょうと","Tokyo Metropolis"]],
+[["者","person: the left side alone"],["部","(N3) section: a different left at the same wall"]],
+["{都合|つごう}がよければ、{金曜日|きんようび}に{会|あ}いましょう。","If it suits you, let's meet on Friday."]);
+
+K("重",["heavy","pile up"],["ジュウ","チョウ"],["おも.い","かさ.ねる"],"里|village",[["千","person bent"],["里","loaded ground"]],
+"会意 compound ideograph",
+"A person bent under a loaded sack, standing on the ground: bearing weight. Heavy; and loads set one on another: to pile up, 重ねる.",
+"Bent under the sack: <b>heavy</b>.",
+[["重い","おもい","heavy"],["体重","たいじゅう","body weight"]],
+[["動","to move: 重 with strength added"],["車","(N5) cart: fewer bars, no load"],["野","field: 里 sits inside it too"]],
+["この{荷物|にもつ}は{重|おも}くて{一人|ひとり}で{持|も}てません。","This luggage is too heavy to carry alone."]);
+
+K("野",["field","wild"],["ヤ"],["の"],"里|village",[["里","village land"],["予","stretching away (sound)"]],
+"形声 phono-semantic",
+"里, the village lands, plus 予, stretching on and on, which gives the sound: the open country beyond the last field. Field, plain, wild.",
+"The land <b>stretching past</b> the village: the open <b>field</b>.",
+[["野菜","やさい","vegetables"],["野球","やきゅう","baseball"]],
+[["理","reason: the same 里 beside jade"],["予","(N3) beforehand: the right side alone"]],
+["{週末|しゅうまつ}、{友|とも}だちと{野球|やきゅう}を{見|み}に{行|い}きます。","This weekend I am going to watch baseball with friends."]);
+
+K("銀",["silver"],["ギン"],[],"金|metal",[["金","metal"],["艮","white root (sound)"]],
+"形声 phono-semantic",
+"Metal 金 plus 艮, which gives the sound: the white metal, second to gold. Silver, and the house where silver is kept: 銀行, the bank.",
+"The white <b>metal</b>: <b>silver</b>, kept at the bank.",
+[["銀行","ぎんこう","bank"],["銀","ぎん","silver"]],
+[["金","(N5) gold, metal: the radical alone"],["根","(N3) root: a tree with the same 艮"]],
+["{銀行|ぎんこう}は{三時|さんじ}に{閉|し}まります。","The bank closes at three."]);
+
+K("門",["gate"],["モン"],["かど"],"門|gate",[["門","double doors"]],
+"象形 pictograph",
+"A pair of swinging double doors on their posts: the gate of a compound. As a radical it frames a whole family of characters about openings.",
+"Two doors on their hinges: a <b>gate</b>.",
+[["門","もん","gate"],["専門","せんもん","specialty"]],
+[["問","to ask: a mouth at the gate"],["聞","(N5) to hear: an ear at the gate"],["間","(N5) interval: the sun at the gate"],["開","to open: hands at the gate"]],
+["{大学|だいがく}の{門|もん}の{前|まえ}で{待|ま}ち{合|あ}わせしましょう。","Let's meet in front of the university gate."]);
+
+K("開",["open"],["カイ"],["あ.く","あ.ける","ひら.く"],"門|gate",[["門","gate"],["开","two hands lifting the bar"]],
+"会意 compound ideograph",
+"The gate 門 with 开 inside: two hands lifting away the bar that holds it shut. To open.",
+"Hands lift the bar from the <b>gate</b>: to <b>open</b>.",
+[["開ける","あける","to open (tr.)"],["開く","ひらく","to open (intr./tr.)"]],
+[["閉","(N3) to close: the opposite, the bar going back"],["門","gate: the doors alone"],["研","to polish: the same 开 by a stone"]],
+["{窓|まど}を{開|あ}けてもいいですか。","May I open the window?"]);
+
+K("院",["institution"],["イン"],[],"⻖|hill wall",[["⻖","wall"],["完","complete (sound)"]],
+"形声 phono-semantic",
+"The wall radical ⻖ plus 完, complete, which gives the sound: a fully walled compound. Great institutions behind walls: 病院, 大学院.",
+"A <b>complete</b> compound behind its wall: an <b>institution</b>.",
+[["病院","びょういん","hospital"],["大学院","だいがくいん","graduate school"],["入院","にゅういん","hospitalization"]],
+[["完","(N3) complete: inside the wall"],["員","member: same sound, money instead"]],
+["{祖母|そぼ}のお{見舞|みま}いに{病院|びょういん}へ{行|い}きました。","I went to the hospital to visit my grandmother."]);
+
+K("集",["gather"],["シュウ"],["あつ.まる","あつ.める"],"隹|bird",[["隹","short-tailed bird"],["木","tree"]],
+"会意 compound ideograph",
+"A bird 隹 alighting on a tree 木, where the whole flock settles at dusk. To gather, to collect.",
+"The flock settles on one tree: to <b>gather</b>.",
+[["集める","あつめる","to collect"],["集まる","あつまる","to gather"]],
+[["曜","weekday: the same bird with shining feathers"],["進","(N3) to advance: the bird on the road"]],
+["{子|こ}どものころ、{切手|きって}を{集|あつ}めていました。","As a child, I collected stamps."]);
+
+K("青",["blue","green"],["セイ","ショウ"],["あお","あお.い"],"青|blue",[["𠂉","fresh growth (from 生)"],["月","well (from 丹)"]],
+"会意 compound ideograph",
+"Fresh growth 生 above and a well below: the color of young plants over clear water. The blue-green of nature, which Japanese stretches from blue skies to green lights.",
+"New shoots over clear water: <b>blue-green</b>.",
+[["青い","あおい","blue"],["青信号","あおしんごう","green light"]],
+[["赤","red: the hot opposite"],["晴","(N3) clear weather: 青 beside the sun"],["静","(N3) quiet: 青 beside a struggle"]],
+["{青|あお}い{空|そら}を{見|み}ると、{元気|げんき}になります。","Looking at the blue sky makes me feel better."]);
+
+K("音",["sound"],["オン","イン"],["おと","ね"],"音|sound",[["立","marked tongue"],["日","mouth"]],
+"指事 ideograph",
+"The character 言, words, with a mark added in the mouth: sound held in the mouth before it becomes words. Sound itself.",
+"Sound still in the mouth, not yet words: <b>sound</b>.",
+[["音","おと","sound"],["音楽","おんがく","music"],["発音","はつおん","pronunciation"]],
+[["意","mind: 音 over a heart"],["言","words: the sound released"],["暗","(N3) dark: 音 beside the sun"]],
+["{変|へん}な{音|おと}が{聞|き}こえませんでしたか。","Did you hear a strange sound?"]);
+
+K("風",["wind","style"],["フウ","フ"],["かぜ"],"風|wind",[["几","sail"],["虫","insect"]],
+"形声 phono-semantic",
+"A sail 几 filled out, with 虫 inside: the wind that drives ships, and that in old belief stirred the insects to life each spring. Wind, and the style things blow in: 和風, 洋風.",
+"The <b>sail</b> fills: <b>wind</b>.",
+[["風","かぜ","wind"],["台風","たいふう","typhoon"],["風邪","かぜ","a cold (special reading)"]],
+[["台","platform: 台風's other half"],["虫","(N2) insect: curled inside the sail"]],
+["{今日|きょう}は{風|かぜ}が{気持|きも}ちいいですね。","The wind feels good today, doesn't it."]);
+
+K("飯",["cooked rice","meal"],["ハン"],["めし"],"飠|food",[["飠","food"],["反","to return (sound)"]],
+"形声 phono-semantic",
+"The food radical 飠 plus 反, to turn back, which gives the sound: the food one returns to every single day. Cooked rice, and by extension the meal itself.",
+"The food you <b>return</b> to daily: <b>rice</b>, the meal.",
+[["ご飯","ごはん","cooked rice; meal"],["朝ご飯","あさごはん","breakfast"]],
+[["飲","to drink: the same food radical, open mouth"],["館","hall: where guests are fed"],["反","(N3) anti-: the right side alone"]],
+["{晩|ばん}ご{飯|はん}はもう{食|た}べましたか。","Have you eaten dinner yet?"]);
+
+K("館",["hall","large building"],["カン"],["やかた"],"飠|food",[["飠","food"],["官","official (sound)"]],
+"形声 phono-semantic",
+"The food radical 飠 plus 官, an official, which gives the sound: the official building where guests are lodged and fed. A hall: 図書館, 映画館, 旅館.",
+"The building where <b>officials feed their guests</b>: a grand <b>hall</b>.",
+[["図書館","としょかん","library"],["映画館","えいがかん","movie theater"],["旅館","りょかん","Japanese inn"]],
+[["飯","meal: the same food radical"],["官","(N3) official: the right side alone"]],
+["{図書館|としょかん}は{月曜日|げつようび}が{休|やす}みです。","The library is closed on Mondays."]);
+
+K("駅",["station"],["エキ"],[],"馬|horse",[["馬","horse"],["尺","relay measure (sound)"]],
+"形声 phono-semantic",
+"Horse 馬 plus 尺, a measured span, from the old form 驛: the relay posts spaced along the road where riders changed horses. The relay became the railway station.",
+"Where riders changed <b>horses</b>, trains now stop: the <b>station</b>.",
+[["駅","えき","station"],["駅前","えきまえ","in front of the station"],["駅員","えきいん","station attendant"]],
+[["験","to test: the same horse, put through trials"],["馬","(N3) horse: the animal alone"],["訳","(N3) translation: words with the same right side"]],
+["{次|つぎ}の{駅|えき}で{降|お}ります。","I get off at the next station."]);
+
+K("験",["test","verify"],["ケン","ゲン"],[],"馬|horse",[["馬","horse"],["㑒","all together (sound)"]],
+"形声 phono-semantic",
+"Horse 馬 plus 㑒, all gathered, which gives the sound: horses tried out one against another before purchase. To put to the proof: test, examine, experience.",
+"Try the <b>horses</b> against each other: a <b>test</b>.",
+[["試験","しけん","exam"],["経験","けいけん","experience"]],
+[["駅","station: the same horse at the relay"],["試","to try: the exam's other half"],["険","(N3) steep: the same right side on a hill"]],
+["{試験|しけん}の{前|まえ}の{晩|ばん}はよく{寝|ね}たほうがいいです。","You should sleep well the night before an exam."]);
+
+K("魚",["fish"],["ギョ"],["さかな","うお"],"魚|fish",[["魚","fish body"],["灬","tail fin"]],
+"象形 pictograph",
+"A fish drawn whole: head at the top, scaled body in the middle, and the four dots as the spread of the tail fin.",
+"Head, scales, tail fin: a <b>fish</b>.",
+[["魚","さかな","fish"],["金魚","きんぎょ","goldfish"]],
+[["鳥","bird: the other four-dot animal"],["漁","(N3) fishing: the fish put in water"]],
+["この{町|まち}の{市場|いちば}は{魚|さかな}が{新|あたら}しいです。","The fish at this town's market is fresh."]);
+
+K("鳥",["bird"],["チョウ"],["とり"],"鳥|bird",[["鳥","long-tailed bird"],["灬","tail feathers"]],
+"象形 pictograph",
+"A long-tailed bird in profile: the eye, the folded wing, and the four dots trailing as tail feathers.",
+"Eye, wing, trailing feathers: a <b>bird</b>.",
+[["鳥","とり","bird"],["小鳥","ことり","small bird"],["焼き鳥","やきとり","grilled chicken skewers"]],
+[["魚","fish: the other four-dot animal"],["馬","(N3) horse: the third of the beasts"],["島","(N3) island: a bird resting on a mountain"]],
+["{朝|あさ}、{鳥|とり}の{声|こえ}で{目|め}が{覚|さ}めました。","In the morning I woke to the sound of birds."]);
+
+K("黒",["black"],["コク"],["くろ","くろ.い"],"黒|black",[["里","smoke hole"],["灬","fire"]],
+"会意 compound ideograph",
+"Fire 灬 burning below a chimney hole blackened with soot: the color the smoke leaves behind. Black.",
+"Soot around the smoke hole: <b>black</b>.",
+[["黒い","くろい","black"],["黒板","こくばん","blackboard"]],
+[["赤","red: the fire before the soot"],["点","(N3) point, mark: the same fire dots"],["重","heavy: a similar stack, no fire"]],
+["{黒|くろ}い{猫|ねこ}が{道|みち}を{渡|わた}りました。","A black cat crossed the road."]);
+
+K("週",["week"],["シュウ"],[],"⻌|road",[["⻌","road"],["周","full circuit (sound)"]],
+"形声 phono-semantic",
+"The road ⻌ plus 周, a complete circuit, which gives the sound: traveling the full round of seven days back to where you began. A week.",
+"The full <b>circuit</b> of seven days: a <b>week</b>.",
+[["週末","しゅうまつ","weekend"],["今週","こんしゅう","this week"],["来週","らいしゅう","next week"],["毎週","まいしゅう","every week"]],
+[["周","(N3) circumference: the circuit itself"],["通","to pass along: the same road"],["曜","the days the week is made of"]],
+["{来週|らいしゅう}の{週末|しゅうまつ}は{何|なに}か{予定|よてい}がありますか。","Do you have any plans next weekend?"]);
+
+K("借",["borrow"],["シャク"],["か.りる"],"亻|person",[["亻","person"],["昔","long ago (sound)"]],
+"形声 phono-semantic",
+"A person 亻 plus 昔, long ago, which gives the sound: taking on something that must eventually go back where it came from. To borrow.",
+"Take it now, owe it from <b>long ago</b>: to <b>borrow</b>.",
+[["借りる","かりる","to borrow"]],
+[["貸","to lend: the mirror action, money underneath"],["昔","(N3) long ago: the right side alone"],["作","to make"],["昨","yesterday"]],
+["{図書館|としょかん}で{本|ほん}を{三冊|さんさつ}{借|か}りました。","I borrowed three books from the library."]);
+
+K("飲",["drink"],["イン"],["の.む"],"飠|food",[["飠","food"],["欠","wide-open mouth"]],
+"会意 compound ideograph",
+"The food radical 飠 beside 欠, a person with mouth thrown wide open: taking in with the mouth agape. To drink.",
+"Head back, mouth open: to <b>drink</b>.",
+[["飲む","のむ","to drink"],["飲み物","のみもの","beverage"],["飲み会","のみかい","drinking party"]],
+[["歌","to sing: the same open mouth, in song"],["飯","meal: the same food radical"],["館","hall"]],
+["{薬|くすり}は{水|みず}で{飲|の}んでください。","Please take the medicine with water."]);
+
+K("言",["say","words"],["ゲン","ゴン"],["い.う","こと"],"言|words",[["口","mouth"],["亠","rising sound lines"]],
+"指事 ideograph",
+"A mouth 口 with strokes rising above it: sound leaving the mouth, marked stroke by stroke. To say; words.",
+"Lines rise from the mouth: to <b>say</b>, <b>words</b>.",
+[["言う","いう","to say"],["言葉","ことば","word, language"]],
+[["話","(N5) to talk: words beside a tongue"],["信","to trust: a person by their words"],["計","to measure: words counting to ten"],["音","sound: words still in the mouth"]],
+["{先生|せんせい}の{言|い}った{言葉|ことば}をノートに{書|か}きました。","I wrote down the teacher's words in my notebook."]);
+
+const PASSAGES=[
+{t:"私の家族",en:"My family",lv:"N5-N4",
+body:"{私|わたし}は{田中|たなか}と{言|い}います。{東京|とうきょう}の{銀行|ぎんこう}で{働|はたら}いています。{家族|かぞく}は{父|ちち}と{母|はは}と{姉|あね}と{私|わたし}の{四人|よにん}です。{姉|あね}は{病院|びょういん}で{働|はたら}いています。{父|ちち}は{少|すこ}し{体|からだ}が{弱|よわ}いので、{毎朝|まいあさ}{母|はは}と{公園|こうえん}を{歩|ある}いています。{私|わたし}の{趣味|しゅみ}は{料理|りょうり}で、{週末|しゅうまつ}はよく{家族|かぞく}に{晩|ばん}ご{飯|はん}を{作|つく}ります。",
+qs:[
+{q:"家族は何人ですか。",o:["三人","四人","五人","二人"],a:1},
+{q:"お姉さんはどこで働いていますか。",o:["銀行","学校","病院","駅"],a:2},
+{q:"「私」は週末によく何をしますか。",o:["公園を歩く","晩ご飯を作る","病院へ行く","写真を撮る"],a:1}]},
+{t:"友だちへのメール",en:"An email to a friend",lv:"N4",
+body:"リサさん、お{元気|げんき}ですか。{来週|らいしゅう}の{土曜日|どようび}、{一緒|いっしょ}に{映画|えいが}を{見|み}に{行|い}きませんか。{駅前|えきまえ}に{新|あたら}しい{映画館|えいがかん}ができました。{映画|えいが}の{後|あと}で、{近|ちか}くの{店|みせ}で{晩|ばん}ご{飯|はん}を{食|た}べたり、{買|か}い{物|もの}をしたりしましょう。{都合|つごう}が{悪|わる}かったら、{言|い}ってください。{日曜日|にちようび}でも{大丈夫|だいじょうぶ}です。{返事|へんじ}を{待|ま}っています。 まり",
+qs:[
+{q:"まりさんは何をしたいと言っていますか。",o:["映画を見たい","野球を見たい","山に登りたい","家で勉強したい"],a:0},
+{q:"新しい映画館はどこにありますか。",o:["学校の近く","公園の中","まりさんの家の近く","駅前"],a:3},
+{q:"リサさんは土曜日に都合が悪いとき、どうしますか。",o:["行かない","日曜日に行ってもいい","朝早く行く","一人で行く"],a:1}]},
+{t:"駅のお知らせ",en:"A station announcement",lv:"N4",
+body:"みなさまにお{知|し}らせします。{今朝|けさ}、{事故|じこ}がありましたので、{電車|でんしゃ}が{止|と}まっています。{動|うご}くまで、あと{一時間|いちじかん}ぐらいかかります。お{急|いそ}ぎの{方|かた}は、{駅|えき}の{前|まえ}から{出|で}るバスを{使|つか}ってください。バスは{十五分|じゅうごふん}に{一本|いっぽん}あります。ご{不便|ふべん}をおかけして、すみません。",
+qs:[
+{q:"どうして電車が止まっていますか。",o:["雪が降ったから","事故があったから","風が強いから","工事があるから"],a:1},
+{q:"急いでいる人はどうしたらいいですか。",o:["一時間待つ","歩いて行く","バスを使う","家に帰る"],a:2},
+{q:"バスはどのぐらいに一本ありますか。",o:["五分","十五分","三十分","一時間"],a:1}]},
+{t:"山田さんの一日",en:"Yamada's day",lv:"N4",
+body:"{山田|やまだ}さんは{大学|だいがく}で{英語|えいご}を{教|おし}えています。{毎朝|まいあさ}{六時|ろくじ}に{起|お}きて、{犬|いぬ}と{散歩|さんぽ}してから、{朝|あさ}ご{飯|はん}を{食|た}べます。{大学|だいがく}までは{自転車|じてんしゃ}で{通|かよ}っています。{昼|ひる}は{学生|がくせい}と{食堂|しょくどう}で{食|た}べることが{多|おお}いです。{授業|じゅぎょう}が{終|お}わると、{図書館|としょかん}で{少|すこ}し{研究|けんきゅう}をします。{夜|よる}は{家|いえ}で{音楽|おんがく}を{聞|き}いたり、{本|ほん}を{読|よ}んだりして、{十一時|じゅういちじ}ごろ{寝|ね}ます。",
+qs:[
+{q:"山田さんの仕事は何ですか。",o:["医者","銀行員","英語の先生","駅員"],a:2},
+{q:"山田さんは大学までどうやって行きますか。",o:["歩いて","バスで","電車で","自転車で"],a:3},
+{q:"授業の後で何をしますか。",o:["すぐ家に帰る","図書館で研究する","映画を見る","買い物をする"],a:1}]},
+{t:"レストランのレビュー",en:"A restaurant review",lv:"N4",
+body:"{先週|せんしゅう}、{駅|えき}の{近|ちか}くの「あおい」という{店|みせ}に{行|い}きました。{魚|さかな}の{料理|りょうり}で{有名|ゆうめい}な{店|みせ}です。{私|わたし}は{魚|さかな}のランチと{野菜|やさい}の{料理|りょうり}を{注文|ちゅうもん}しました。{魚|さかな}は{新|あたら}しくて、とてもおいしかったです。ただ、{店|みせ}が{小|ちい}さいので、{昼|ひる}は{三十分|さんじゅっぷん}ぐらい{待|ま}たなければなりません。{夜|よる}のほうが{人|ひと}が{少|すく}ないと{思|おも}います。みなさんもぜひ{行|い}ってみてください。",
+qs:[
+{q:"「あおい」は何の料理で有名ですか。",o:["肉","魚","お茶","パン"],a:1},
+{q:"昼はどうして待たなければなりませんか。",o:["店が小さいから","店員が少ないから","料理が遅いから","駅から遠いから"],a:0},
+{q:"この人はいつ行くほうがいいと思っていますか。",o:["朝","昼","夜","週末"],a:2}]},
+{t:"私の町",en:"My town",lv:"N4",
+body:"{私|わたし}の{町|まち}は{海|うみ}の{近|ちか}くにあります。{春|はる}は{公園|こうえん}の{花|はな}がきれいで、{写真|しゃしん}を{撮|と}る{人|ひと}が{多|おお}いです。{夏|なつ}は{海|うみ}で{泳|およ}いだり、{魚|さかな}をとったりします。{秋|あき}は{森|もり}の{色|いろ}が{変|か}わって、とてもきれいです。{冬|ふゆ}は{雪|ゆき}は{降|ふ}りませんが、{風|かぜ}が{強|つよ}くて{寒|さむ}いです。{一年中|いちねんじゅう}、{楽|たの}しいことが{多|おお}い{町|まち}です。ぜひ{遊|あそ}びに{来|き}てください。",
+qs:[
+{q:"この町はどこにありますか。",o:["山の中","大きい川のそば","海の近く","駅の前"],a:2},
+{q:"秋はどうなりますか。",o:["花が咲く","森の色が変わる","雪が降る","海で泳ぐ"],a:1},
+{q:"冬の天気はどうですか。",o:["雪が多い","雨が多い","暖かい","風が強くて寒い"],a:3}]}
+];
+/* ===== N4 Kanji Mastery, app core ===== */
+const SKEY='n4k';
+const store={
+  mem:null,
+  async load(){
+    if(typeof window!=='undefined'&&window.storage){
+      try{const r=await window.storage.get(SKEY);return r?r.value:null}catch(e){return null}
+    }
+    try{return localStorage.getItem(SKEY)}catch(e){return this.mem}
+  },
+  async save(v){
+    this.mem=v;
+    if(typeof window!=='undefined'&&window.storage){
+      try{await window.storage.set(SKEY,v);return}catch(e){}
+    }
+    try{localStorage.setItem(SKEY,v)}catch(e){}
+  }
+};
+
+let P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
+let saveT=null;
+function save(){clearTimeout(saveT);saveT=setTimeout(()=>store.save(JSON.stringify(P)),300)}
+function today(){return Math.floor(Date.now()/864e5)}
+
+/* ===== data index ===== */
+const MAP={};DATA.forEach(d=>MAP[d.k]=d);
+const ALLK=DATA.map(d=>d.k);
+const DCOL=['#C4C9CF','#F59E0B','#4FC3BD','#0FA3A3','#0B7C7C','#D4A017'];
+const DLBL=['0 New','1 Seen','2 Learning','3 Known','4 Strong','5 Mastered'];
+function inDeck(k){return !!MAP[k]}
+
+/* ===== study set picker (cards + drills) ===== */
+function studySetArr(mode){
+  const ss=(P.studySets||{})[mode];
+  if(!ss||!ss.sel)return ALLK.slice();
+  return ss.sel.filter(k=>MAP[k]);
+}
+function inStudySet(k,mode){
+  const ss=(P.studySets||{})[mode];
+  if(!ss||!ss.sel)return true;
+  return ss.sel.indexOf(k)>=0;
+}
+let SET_EDIT=null; // {mode, sel:Set, filter, q}
+function setPickInit(mode){
+  const ss=(P.studySets||{})[mode]||{sel:null,ok:false};
+  const sel=new Set(ss.sel?ss.sel.slice():ALLK);
+  SET_EDIT={mode,sel,filter:-1,q:''};
+}
+function setPickList(){
+  if(!SET_EDIT)return [];
+  return DATA.filter(d=>{
+    if(SET_EDIT.filter>=0&&depth(d.k)!==SET_EDIT.filter)return false;
+    if(SET_EDIT.q){
+      const q=SET_EDIT.q.toLowerCase();
+      if(d.k===SET_EDIT.q||d.k.includes(SET_EDIT.q))return true;
+      if(d.m.join(' ').toLowerCase().includes(q))return true;
+      if(d.on.join(' ').includes(SET_EDIT.q)||d.kun.join(' ').replace(/\./g,'').includes(SET_EDIT.q))return true;
+      return false;
+    }
+    return true;
+  });
+}
+function setPickGridHTML(){
+  const list=setPickList();
+  const allOn=list.length>0&&list.every(d=>SET_EDIT.sel.has(d.k));
+  const cells=list.map(d=>{
+    const on=SET_EDIT.sel.has(d.k);
+    return '<button type="button" class="kcell pick jp'+(on?' sel':' dimsel')+'" data-k="'+esc(d.k)+'" onclick="APP.setToggle(this)">'+d.k+depthDot(depth(d.k))+'</button>';
+  }).join('');
+  return '<div class="muted small" style="margin-bottom:8px">'+list.length+' shown &middot; tap to select multiple</div>'+
+    '<div class="kgrid" id="setgrid">'+cells+'</div>';
+}
+function vSetPick(mode){
+  if(!SET_EDIT||SET_EDIT.mode!==mode)setPickInit(mode);
+  const n=SET_EDIT.sel.size;
+  const title=mode==='cards'?'Flashcards':'Drills';
+  const jptitle=mode==='cards'?'札':'練';
+  const chips=[['All',-1],['0',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(c=>
+    '<button type="button" class="chip'+(SET_EDIT.filter===c[1]?' on':'')+'" data-f="'+c[1]+'" onclick="APP.setFilter('+c[1]+')">'+c[0]+'</button>').join('');
+  const quick=[['All','setAll()'],['Clear','setClear()'],['5','setCount(5)'],['10','setCount(10)'],['15','setCount(15)'],['20','setCount(20)']].map(x=>
+    '<button type="button" class="chip" onclick="APP.'+x[1]+'">'+x[0]+'</button>').join('');
+  const startLbl=mode==='cards'?'Start flashcards':'Continue to drills';
+  return head()+
+  '<div class="panel setpick"><div class="eyebrow">'+jptitle+' Set</div><h2>'+title+' kanji</h2>'+
+  '<div class="muted small" style="margin-bottom:12px">Choose which characters to include. Default is all 188 — tap the grid to pick a subset (e.g. 5, 10, or 15).</div>'+
+  '<div class="pickbar"><span class="pickcount" id="setcount">'+n+' selected</span><span class="muted small">'+(n===ALLK.length?'All':'Custom')+'</span></div>'+
+  '<div class="quick">'+quick+'</div>'+
+  '<input class="search" id="setq" type="search" placeholder="Search to narrow&hellip;" value="'+esc(SET_EDIT.q)+'">'+
+  '<div class="filters">'+chips+'</div>'+
+  '<div id="setgridwrap">'+setPickGridHTML()+'</div></div>'+
+  '<button class="bigbtn"'+(n?'':' disabled style="opacity:.45"')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button>'+
+  (mode==='cards'?'<button class="bigbtn ghost" style="margin-top:10px" onclick="APP.go(\'#/home\')">Back home</button>':'');
+}
+function bindSetPick(){
+  const inp=document.getElementById('setq');
+  if(inp)inp.addEventListener('input',()=>{SET_EDIT.q=inp.value.trim();document.getElementById('setgridwrap').innerHTML=setPickGridHTML()});
+}
+function setPickRefresh(){
+  const el=document.getElementById('setcount');
+  if(el)el.textContent=SET_EDIT.sel.size+' selected';
+  const wrap=document.getElementById('setgridwrap');
+  if(wrap)wrap.innerHTML=setPickGridHTML();
+  const btn=document.querySelector('#app .bigbtn:not(.ghost)');
+  if(btn)btn.disabled=!SET_EDIT.sel.size;
+}
+APP.setToggle=function(el){
+  if(!SET_EDIT)return;
+  const k=el.dataset.k;
+  if(SET_EDIT.sel.has(k))SET_EDIT.sel.delete(k);else SET_EDIT.sel.add(k);
+  setPickRefresh();
+};
+APP.setAll=function(){
+  if(!SET_EDIT)return;
+  setPickList().forEach(d=>SET_EDIT.sel.add(d.k));
+  setPickRefresh();
+};
+APP.setClear=function(){
+  if(!SET_EDIT)return;
+  setPickList().forEach(d=>SET_EDIT.sel.delete(d.k));
+  setPickRefresh();
+};
+APP.setCount=function(n){
+  if(!SET_EDIT)return;
+  SET_EDIT.sel.clear();
+  setPickList().slice(0,n).forEach(d=>SET_EDIT.sel.add(d.k));
+  setPickRefresh();
+};
+APP.setFilter=function(f){
+  if(!SET_EDIT)return;
+  SET_EDIT.filter=f;
+  document.querySelectorAll('.setpick .filters .chip').forEach(ch=>{
+    ch.classList.toggle('on',parseInt(ch.dataset.f,10)===f);
+  });
+  document.getElementById('setgridwrap').innerHTML=setPickGridHTML();
+};
+APP.setStart=function(mode){
+  if(!SET_EDIT||!SET_EDIT.sel.size){toast('Pick at least one kanji');return}
+  P.studySets=P.studySets||{cards:{sel:null,ok:false},ex:{sel:null,ok:false}};
+  const n=SET_EDIT.sel.size;
+  P.studySets[mode]={sel:n>=ALLK.length?null:Array.from(SET_EDIT.sel),ok:true};
+  save();
+  if(mode==='cards'){S=null;go('#/cards/play')}
+  else go('#/ex/hub');
+};
+
+/* ===== SRS ===== */
+function ensureCards(k){
+  if(!P.cards[k+':m'])P.cards[k+':m']={iv:0,ease:2.5,due:today(),reps:0,lapses:0};
+  if(!P.cards[k+':r'])P.cards[k+':r']={iv:0,ease:2.5,due:today(),reps:0,lapses:0};
+}
+function schedule(c,g){
+  if(g===0){c.lapses++;c.ease=Math.max(1.3,c.ease-0.2);c.iv=0;c.due=today();}
+  else if(g===1){c.ease=Math.max(1.3,c.ease-0.15);c.iv=c.iv<1?1:Math.max(c.iv+1,Math.round(c.iv*1.2));c.due=today()+c.iv;}
+  else if(g===2){c.iv=c.iv<1?1:Math.round(c.iv*c.ease);c.due=today()+c.iv;}
+  else{c.ease=Math.min(3,c.ease+0.1);c.iv=c.iv<1?3:Math.round(c.iv*c.ease*1.3);c.due=today()+c.iv;}
+  c.reps++;
+}
+function proj(c,g){const t={iv:c.iv,ease:c.ease,due:c.due,reps:c.reps,lapses:c.lapses};schedule(t,g);return g===0?'again':t.iv+'d'}
+
+/* ===== skills and depth ===== */
+const SKILLS=['meaning','reading','vocab','context'];
+const SKLBL={meaning:'Meaning',reading:'Reading',vocab:'Vocab',context:'Context'};
+function logSkill(k,skill,ok){
+  P.skills[k]=P.skills[k]||{};
+  const a=P.skills[k][skill]=P.skills[k][skill]||[];
+  a.push(ok?1:0);if(a.length>12)a.shift();
+  save();
+}
+function skillAcc(k,skill){const a=(P.skills[k]||{})[skill]||[];if(!a.length)return null;return a.reduce((x,y)=>x+y,0)/a.length}
+function skillN(k){const s=P.skills[k]||{};return SKILLS.reduce((n,sk)=>n+((s[sk]||[]).length),0)}
+function overallAcc(k){const s=P.skills[k]||{};let c=0,t=0;SKILLS.forEach(sk=>{(s[sk]||[]).forEach(v=>{t++;c+=v})});return t?c/t:0}
+function depth(k){
+  const m=P.cards[k+':m'],r=P.cards[k+':r'];
+  const n=skillN(k);
+  if(!m&&!r&&n===0&&!P.seen[k])return 0;
+  if(!m||!r)return 1;
+  const iv=Math.min(m.iv,r.iv);
+  const acc=overallAcc(k);
+  const ctx=((P.skills[k]||{}).context||[]).length;
+  if(m.reps>=1&&r.reps>=1&&iv>=21&&acc>=0.9&&n>=20)return 5;
+  if(iv>=10&&acc>=0.8&&ctx>=2&&n>=12)return 4;
+  if(iv>=4&&acc>=0.7&&n>=6)return 3;
+  if(m.reps>=1&&r.reps>=1&&iv>=1)return 2;
+  return 1;
+}
+
+/* ===== utils ===== */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function kunDisp(s){const i=s.indexOf('.');return i<0?esc(s):esc(s.slice(0,i))+'<span class="oku">・'+esc(s.slice(i+1))+'</span>'}
+/* After {kanji|reading}, attach all following kana that belong to the same word
+   (verbs, adjectives, nouns with okurigana). Skip bare particles between words. */
+const FURI_SOLO_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','で','と','も','へ','や','の','ね','よ','ぞ','さ','わ'];
+const FURI_LEAD_PART=['から','まで','より','ほど','など','とか','かも','には','にも','では','でも','とは','とも','ては','ても','も','は','が','を','に','で','と','へ','や','の'];
+const FURI_STRIP_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','も','へ','や','の','と'];
+function furiParticleOnly(s){
+  let i=0;
+  while(i<s.length){
+    let hit=null;
+    for(const p of FURI_SOLO_PART){if(s.startsWith(p,i)){hit=p;break}}
+    if(!hit)return false;
+    i+=hit.length;
+  }
+  return s.length>0;
+}
+function furiLeadParticle(s){
+  for(const p of FURI_LEAD_PART){if(s.startsWith(p))return true}
+  return false;
+}
+function furiStripEnd(s){
+  let changed=true;
+  while(changed&&s){
+    changed=false;
+    for(const p of FURI_STRIP_PART){
+      if(s.endsWith(p)){s=s.slice(0,-p.length);changed=true;break}
+    }
+  }
+  return s;
+}
+function furiTrimGrammar(h){
+  h=furiStripEnd(h);
+  h=h.replace(/い(です|でした|だ)$/,'い');
+  h=h.replace(/(くない)(です|でした|だ)?$/,'$1');
+  return h;
+}
+function absorbOkuri(after){
+  const m=after.match(/^([\u3040-\u309F\u30A0-\u30FFー]+)/);
+  if(!m)return '';
+  const h=m[1];
+  if(h==='ご'||h==='お')return '';
+  if(furiParticleOnly(h))return '';
+  if(furiLeadParticle(h))return '';
+  return furiTrimGrammar(h);
+}
+function furiHTML(markup){
+  let out='',i=0,m;
+  const re=/\{([^|]+)\|([^}]+)\}/g;
+  while((m=re.exec(markup))){
+    out+=esc(markup.slice(i,m.index));
+    const okuri=absorbOkuri(markup.slice(m.index+m[0].length));
+    const base=m[1],reading=m[2],full=base+okuri;
+    out+='<span class="w" data-say="'+esc(full)+'" onclick="APP.tapWord(this)"><ruby>'+esc(base)+'<rt>'+esc(reading)+'</rt></ruby>'+esc(okuri)+'</span>';
+    i=m.index+m[0].length+okuri.length;
+    re.lastIndex=i;
+  }
+  out+=esc(markup.slice(i));
+  return out;
+}
+function kanaOf(markup){return markup.replace(/\{([^|]+)\|([^}]+)\}/g,'$2')}
+function plainSent(markup){return markup.replace(/\{([^|]+)\|([^}]+)\}/g,'$1')}
+function sentWords(markup){const out=[];markup.replace(/\{([^|]+)\|([^}]+)\}/g,(_,a,b)=>{out.push([a,b]);return ''});return out}
+function toggleAll(btn,id){
+  const box=document.getElementById(id);if(!box)return;
+  const on=btn.dataset.on==='1';
+  box.querySelectorAll('ruby').forEach(r=>r.classList[on?'remove':'add']('show'));
+  btn.dataset.on=on?'0':'1';
+  btn.textContent=on?'すべて表示 Show all':'すべて隠す Hide all';
+}
+
+/* ===== speech (Google Translate TTS, Web Speech fallback) ===== */
+let VOJA=null,audioEl=null,sayToken=0,objUrl=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();VOJA=vs.find(v=>/^ja/i.test(v.lang)&&/Kyoko|O-?Ren|Google 日本語|Otoya/i.test(v.name))||vs.find(v=>/^ja/i.test(v.lang))||null}catch(e){}}
+if(typeof speechSynthesis!=='undefined'){pickVoice();try{speechSynthesis.onvoiceschanged=pickVoice}catch(e){}}
+function toast(t){
+  let el=document.getElementById('toast');
+  if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600);
+}
+function gTtsUrls(text){
+  const q=encodeURIComponent(text);
+  const google=[
+    'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q='+q,
+    'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ja&q='+q
+  ];
+  if(typeof navigator!=='undefined'&&navigator.serviceWorker&&navigator.serviceWorker.controller)
+    return [appBase()+'tts?q='+q,...google];
+  return google;
+}
+function appBase(){
+  let p=location.pathname;
+  if(p.endsWith('/'))return p;
+  if(/\.html$/i.test(p))return p.slice(0,p.lastIndexOf('/')+1);
+  return p+'/';
+}
+function registerSw(){
+  if(!('serviceWorker' in navigator))return Promise.resolve();
+  return navigator.serviceWorker.register(appBase()+'sw.js',{scope:appBase()}).catch(()=>{});
+}
+function splitTts(text,max){
+  max=max||180;
+  if(text.length<=max)return [text];
+  const out=[],parts=text.split(/([。、！？\n])/);
+  let buf='';
+  for(const p of parts){
+    if((buf+p).length>max){
+      if(buf.trim())out.push(buf.trim());
+      buf=p;
+    }else buf+=p;
+  }
+  if(buf.trim())out.push(buf.trim());
+  if(out.length)return out;
+  const hard=[];
+  for(let i=0;i<text.length;i+=max)hard.push(text.slice(i,i+max));
+  return hard;
+}
+function stopSpeech(){
+  sayToken++;
+  if(audioEl){audioEl.pause();audioEl.onended=null;audioEl.onerror=null;audioEl=null}
+  if(objUrl){URL.revokeObjectURL(objUrl);objUrl=null}
+  if(typeof speechSynthesis!=='undefined')try{speechSynthesis.cancel()}catch(e){}
+}
+function sayFallback(t){
+  if(typeof speechSynthesis==='undefined'){toast('Audio unavailable. Check your connection.');return}
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(t);
+    u.lang='ja-JP';if(VOJA)u.voice=VOJA;u.rate=0.92;
+    speechSynthesis.speak(u);
+  }catch(e){toast('Audio is not available here.')}
+}
+function playAudioEl(a,token){
+  return new Promise((resolve,reject)=>{
+    if(token!==sayToken)return resolve();
+    audioEl=a;
+    a.referrerPolicy='no-referrer';
+    let settled=false;
+    const done=()=>{if(settled)return;settled=true;clearTimeout(timer);if(token===sayToken)resolve()};
+    const fail=()=>{if(settled)return;settled=true;clearTimeout(timer);if(token!==sayToken)resolve();else reject(new Error('audio'))};
+    const timer=setTimeout(fail,8000);
+    a.onended=done;
+    a.onerror=fail;
+    const start=()=>a.play().catch(fail);
+    if(a.readyState>=2)start();
+    else{a.oncanplaythrough=()=>{a.oncanplaythrough=null;start()};a.load()}
+  });
+}
+async function playGttsUrl(url,token){
+  const a=new Audio();
+  a.src=url;
+  await playAudioEl(a,token);
+  return true;
+}
+async function playGttsText(text,token){
+  const urls=gTtsUrls(text);
+  let lastErr=null;
+  for(const url of urls){
+    if(token!==sayToken)return false;
+    try{return await playGttsUrl(url,token)}catch(e){lastErr=e}
+  }
+  throw lastErr||new Error('tts failed');
+}
+async function speakGoogle(text,token){
+  const chunks=splitTts(text);
+  try{
+    for(const chunk of chunks){
+      if(token!==sayToken)return;
+      await playGttsText(chunk,token);
+    }
+  }catch(e){
+    if(token!==sayToken)return;
+    toast('Google音声が使えません。広告ブロッカーをオフにしてください。');
+    sayFallback(text);
+  }
+}
+function say(t){
+  if(!t)return;
+  const text=String(t).trim();
+  if(!text)return;
+  stopSpeech();
+  const token=sayToken;
+  speakGoogle(text,token);
+}
+
+/* ===== glyph font styles ===== */
+const FONTS={
+  gothic:{v:'var(--f-gothic)',jp:'ゴシック体',en:'Gothic'},
+  mincho:{v:'var(--f-mincho)',jp:'明朝体',en:'Mincho'},
+  kyokasho:{v:'var(--f-kyokasho)',jp:'教科書体',en:'Textbook'}
+};
+function applyFont(){
+  const f=FONTS[P.settings.glyphFont]||FONTS.gothic;
+  try{document.documentElement.style.setProperty('--glyphfont',f.v)}catch(e){}
+}
+
+/* ===== router ===== */
+function go(h){location.hash=h}
+function route(){const h=location.hash||'#/home';return h.slice(2).split('/')}
+const APP={go,toggleAll};
+APP.setFont=function(f){
+  P.settings.glyphFont=f;save();applyFont();
+  document.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('on',b.dataset.font===f));
+};
+window.APP=APP;
+
+APP.sayEl=function(el){
+  if(!el||!el.dataset)return;
+  say(el.dataset.say||el.textContent||'');
+};
+APP.tapWord=function(el){
+  const r=el.querySelector('ruby');
+  if(r)r.classList.toggle('show');
+  say(el.dataset.say||el.textContent||'');
+};
+
+const NAVS=[['#/home','家','Home'],['#/browse','覧','Browse'],['#/cards','札','Cards'],['#/ex','練','Drills'],['#/read','読','Read']];
+function renderNav(){
+  const p=route();
+  const p0=p[0]||'home';
+  const map={home:'#/home',browse:'#/browse',kanji:'#/browse',cards:'#/cards',ex:'#/ex',drill:'#/ex',read:'#/read',settings:'#/home'};
+  const act=(p0==='cards'&&p[1]==='play')?'#/cards':(p0==='ex'&&(p[1]==='hub'||p[1]==='run'))?'#/ex':(map[p0]||'#/home');
+  document.getElementById('nav').innerHTML=NAVS.map(n=>
+    '<button class="'+(n[0]===act?'on':'')+'" onclick="APP.go(\''+n[0]+'\')"><span class="ic jp">'+n[1]+'</span>'+n[2]+'</button>'
+  ).join('');
+}
+
+/* ===== shared bits ===== */
+function head(title,back){
+  return '<div class="apphead">'+
+    (back?'<button class="backbtn" onclick="history.back()">&larr; Back</button>':'<div class="brand"><span class="n4">N4</span><h1>漢字 Mastery</h1></div>')+
+    (back?'<h1 style="font-size:1.1rem">'+title+'</h1>':'<button class="backbtn" onclick="APP.go(\'#/settings\')">&#9881;</button>')+
+    '</div>';
+}
+function depthDot(d){return '<span class="dot d'+d+'"></span>'}
+function stackbarHTML(counts){
+  const total=counts.reduce((a,b)=>a+b,0)||1;
+  let seg='';
+  counts.forEach((c,i)=>{if(c>0)seg+='<div class="d'+i+'" style="width:'+(100*c/total)+'%"></div>'});
+  let leg=counts.map((c,i)=>'<span><i class="d'+i+'"></i>'+DLBL[i]+' &middot; '+c+'</span>').join('');
+  return '<div class="stackbar">'+seg+'</div><div class="legend">'+leg+'</div>';
+}
+
+/* ===== HOME ===== */
+function vHome(){
+  const counts=[0,0,0,0,0,0];
+  ALLK.forEach(k=>counts[depth(k)]++);
+  const t=today();
+  const due=Object.values(P.cards).filter(c=>c.due<=t).length;
+  const dstr=new Date().toDateString();
+  const used=P.intro.date===dstr?P.intro.count:0;
+  const newLeft=Math.max(0,P.settings.newPerDay-used);
+  const known=counts[3]+counts[4]+counts[5];
+  return head()+
+  '<div class="statrow">'+
+    '<div class="stat"><div class="n" style="color:var(--crimson)">'+due+'</div><div class="l">Cards due</div></div>'+
+    '<div class="stat"><div class="n" style="color:var(--orange)">'+newLeft+'</div><div class="l">New today</div></div>'+
+    '<div class="stat"><div class="n" style="color:var(--teal-deep)">'+known+'<span style="font-size:.9rem;color:#8B929B">/188</span></div><div class="l">Known+</div></div>'+
+  '</div>'+
+  '<div class="panel"><div class="eyebrow">深さ Depth across the deck</div><div style="height:8px"></div>'+stackbarHTML(counts)+'</div>'+
+  '<button class="tile" onclick="APP.go(\'#/cards\')"><h3>札 Flashcards'+(due>0?'<span class="duebadge">'+due+' due</span>':'')+'</h3><div class="sub">Spaced repetition, meaning and reading cards</div></button>'+
+  '<button class="tile crim" onclick="APP.go(\'#/ex\')"><h3>練 Drills</h3><div class="sub">Meaning, readings, lookalikes, vocab, context</div></button>'+
+  '<button class="tile" onclick="APP.go(\'#/read\')"><h3>読 Reading</h3><div class="sub">Short passages with tap furigana</div></button>'+
+  '<button class="tile crim" onclick="APP.go(\'#/browse\')"><h3>覧 Browse all 188</h3><div class="sub">Search, filter by depth, open any kanji</div></button>';
+}
+
+/* ===== BROWSE ===== */
+let BQ='',BF=-1;
+function bMatch(d){
+  if(BF>=0&&depth(d.k)!==BF)return false;
+  if(!BQ)return true;
+  const q=BQ.toLowerCase();
+  if(d.k===BQ||d.k.includes(BQ))return true;
+  if(d.m.join(' ').toLowerCase().includes(q))return true;
+  if(d.on.join(' ').includes(BQ)||d.kun.join(' ').replace(/\./g,'').includes(BQ))return true;
+  if(d.voc.some(v=>v[0].includes(BQ)||v[1].includes(BQ)||v[2].toLowerCase().includes(q)))return true;
+  return false;
+}
+function gridHTML(){
+  const list=DATA.filter(bMatch);
+  const cells=list.map(d=>'<button class="kcell jp" onclick="APP.go(\'#/kanji/'+d.k+'\')">'+d.k+depthDot(depth(d.k))+'</button>').join('');
+  return '<div class="muted small" style="margin-bottom:8px">'+list.length+' of 188</div><div class="kgrid">'+cells+'</div>';
+}
+function vBrowse(){
+  const chips=[['All',-1],['0',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(c=>
+    '<button class="chip'+(BF===c[1]?' on':'')+'" data-f="'+c[1]+'">'+c[0]+'</button>').join('');
+  return head()+
+  '<input class="search" id="bq" type="search" placeholder="Search kanji, meaning, reading&hellip;" value="'+esc(BQ)+'">'+
+  '<div class="filters" id="chips">'+chips+'</div>'+
+  '<div id="kgrid">'+gridHTML()+'</div>';
+}
+function bindBrowse(){
+  const inp=document.getElementById('bq');if(!inp)return;
+  inp.addEventListener('input',()=>{BQ=inp.value.trim();document.getElementById('kgrid').innerHTML=gridHTML()});
+  document.getElementById('chips').querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      BF=parseInt(ch.dataset.f,10);
+      document.getElementById('chips').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',parseInt(x.dataset.f,10)===BF));
+      document.getElementById('kgrid').innerHTML=gridHTML();
+    });
+  });
+}
+
+/* ===== KANJI DETAIL ===== */
+function ringSVG(d){
+  const r=23,c=2*Math.PI*r;
+  const dash=(c*d/5).toFixed(1);
+  return '<div class="ringwrap"><svg viewBox="0 0 56 56">'+
+  '<circle cx="28" cy="28" r="'+r+'" fill="#fff" stroke="#16161F" stroke-width="3"/>'+
+  '<circle cx="28" cy="28" r="'+r+'" fill="none" stroke="'+DCOL[d]+'" stroke-width="6" stroke-dasharray="'+dash+' '+c.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 28 28)"/>'+
+  '</svg><div class="dnum">'+d+'</div></div>';
+}
+function skillbarsHTML(k){
+  return '<div class="skillbars">'+SKILLS.map(s=>{
+    const a=skillAcc(k,s);
+    const n=((P.skills[k]||{})[s]||[]).length;
+    const w=a===null?0:Math.round(a*100);
+    return '<div class="sb"><div class="lbl">'+SKLBL[s]+'</div><div class="track"><div class="fill" style="width:'+w+'%;background:'+(a===null?'#E6E2D8':(a>=0.8?'var(--teal)':a>=0.5?'var(--orange)':'var(--crimson)'))+'"></div></div><div class="pct">'+(a===null?'&ndash;':w+'%')+'</div></div>';
+  }).join('')+'</div>';
+}
+function sect(jp,en,inner){return '<div class="sect"><div class="shead"><span class="sjp">'+jp+'</span><span class="sen">'+en+'</span></div>'+inner+'</div>'}
+function vKanji(k){
+  const e=MAP[k];
+  if(!e)return head('?',true)+'<div class="panel">Not in the N4 deck.</div>';
+  if(!P.seen[k]){P.seen[k]=1;save()}
+  const d=depth(k);
+  const m=P.cards[k+':m'],r=P.cards[k+':r'];
+  const onP=e.on.map(o=>'<span class="readpill" data-say="'+esc(o)+'" onclick="APP.sayEl(this)"><b>ON</b>'+esc(o)+'</span>').join('');
+  const kunP=e.kun.map(o=>'<span class="readpill kun" data-say="'+esc(o.replace('.',''))+'" onclick="APP.sayEl(this)"><b>KUN</b>'+kunDisp(o)+'</span>').join('');
+  const radParts=e.rad.split('|');
+  const compCards='<div class="comp"><div class="c rad"><div class="tag">部首 RADICAL</div><div class="cc jp">'+esc(radParts[0])+'</div><div class="cn">'+esc(radParts[1]||'')+'</div></div>'+
+    e.comps.map(c=>'<div class="c"><div class="cc jp">'+esc(c[0])+'</div><div class="cn">'+esc(c[1])+'</div></div>').join('')+'</div>';
+  const vocList='<div class="hint">Tap a word to hear it</div><div class="vlist">'+e.voc.map(v=>'<div class="v" data-say="'+esc(v[0])+'" onclick="APP.sayEl(this)"><span class="vw">'+esc(v[0])+'</span><span class="vr">'+esc(v[1])+'</span><span class="vg">'+esc(v[2])+'</span></div>').join('')+'</div>';
+  const simRows=e.sim&&e.sim.length?'<div>'+e.sim.map(s=>{
+    const c=s[0],link=inDeck(c);
+    return '<div class="simrow"><'+(link?'button':'div')+' class="sk jp"'+(link?' style="cursor:pointer;box-shadow:3px 3px 0 var(--teal)" onclick="APP.go(\'#/kanji/'+c+'\')"':' style="opacity:.75"')+'>'+c+'</'+(link?'button':'div')+'><div class="sn">'+esc(s[1])+(link?'<div class="small" style="color:var(--teal-deep);font-weight:800;margin-top:2px">In deck, tap to open</div>':'')+'</div></div>';
+  }).join('')+'</div>':'<div class="muted small">No close lookalikes tracked.</div>';
+  const srsLine=(m&&m.reps)||((r&&r.reps))?
+    '<div class="muted small" style="margin-top:6px">SRS: meaning '+(m?m.iv+'d':'&ndash;')+' &middot; reading '+(r?r.iv+'d':'&ndash;')+' &middot; attempts '+skillN(k)+'</div>':
+    '<div class="muted small" style="margin-top:6px">Not in flashcards yet. It joins automatically as a new card, or drill it below.</div>';
+  return head(e.k,true)+
+  '<div class="hero">'+ringSVG(d)+
+    '<div class="glyph jp" data-say="'+esc(e.k)+'" onclick="APP.sayEl(this)">'+e.k+'</div>'+
+    '<div class="gloss">'+esc(e.m.join(', '))+'</div>'+
+    '<div class="readrow">'+onP+kunP+'</div>'+
+    '<div class="fontrow">'+Object.keys(FONTS).map(f=>'<button class="chip'+((P.settings.glyphFont||'gothic')===f?' on':'')+'" data-font="'+f+'" onclick="APP.setFont(\''+f+'\')">'+FONTS[f].jp+'<small>'+FONTS[f].en+'</small></button>').join('')+'</div>'+
+  '</div>'+
+  sect('深さ','Depth '+d+' of 5',skillbarsHTML(k)+srsLine)+
+  sect('成り立ち','Origin','<div class="etybox"><span class="etype">'+esc(e.etype)+'</span><div>'+esc(e.ety)+'</div></div><div class="mnbox">'+e.mn+'</div>')+
+  sect('部首と部品','Radical and parts',compCards)+
+  sect('語彙','Vocabulary',vocList)+
+  sect('似ている漢字','Easily confused',simRows)+
+  sect('例文','In context','<div class="hint">Tap a word for its reading and audio</div><div class="sentbox" id="sentbox">'+furiHTML(e.sent[0])+'<span class="en">'+esc(e.sent[1])+'</span></div>'+
+    '<div style="display:flex;gap:8px;margin-top:10px"><button class="chip" data-say="'+esc(plainSent(e.sent[0]))+'" onclick="APP.sayEl(this)">&#9654; 音声 Speak</button><button class="chip" data-on="0" onclick="APP.toggleAll(this,\'sentbox\')">すべて表示 Show all</button></div>')+
+  '<div style="height:6px"></div>'+
+  '<button class="bigbtn" onclick="APP.go(\'#/drill/'+e.k+'\')">この漢字をドリル Drill this kanji</button>';
+}
+/* ===== FLASHCARDS ===== */
+let S=null; // session
+function buildSession(){
+  const dstr=new Date().toDateString();
+  if(P.intro.date!==dstr){P.intro={date:dstr,count:0}}
+  const t=today();
+  const allowed=new Set(studySetArr('cards'));
+  const due=shuffle(Object.keys(P.cards).filter(id=>{
+    const k=id.split(':')[0];
+    return P.cards[id].due<=t&&allowed.has(k);
+  }));
+  const left=Math.max(0,P.settings.newPerDay-P.intro.count);
+  const fresh=ALLK.filter(k=>!P.cards[k+':m']&&allowed.has(k)).slice(0,left);
+  const newQ=[];
+  fresh.forEach(k=>{ensureCards(k);P.intro.count++;newQ.push(k+':m',k+':r')});
+  if(fresh.length)save();
+  S={q:due.concat(newQ),i:0,flip:false,n:{0:0,1:0,2:0,3:0},newSet:new Set(newQ)};
+}
+function vCards(){
+  const n=studySetArr('cards').length;
+  if(!S||S.done===true)buildSession();
+  if(!S.q.length){
+    S=null;
+    return head('Flashcards',true)+'<div class="panel" style="text-align:center;padding:34px 16px"><div style="font-size:2.6rem" class="jp">休</div><h2 style="margin-top:8px">All caught up</h2><div class="muted">No cards due and no new cards left today in your set ('+n+' kanji). Try a drill, or change your set.</div></div>'+
+    '<button class="bigbtn ghost" onclick="APP.go(\'#/cards\')">Change set</button>'+
+    '<button class="bigbtn ghost" onclick="APP.go(\'#/ex\')">練 Go to drills</button>';
+  }
+  if(S.i>=S.q.length){
+    const done=S.n;S=null;
+    return head('Flashcards',true)+'<div class="panel result"><div class="eyebrow">Session complete</div><div class="score">'+(done[2]+done[3])+'<span style="font-size:1.2rem;color:#8B929B">/'+(done[0]+done[1]+done[2]+done[3])+'</span></div><div class="muted small">Again '+done[0]+' &middot; Hard '+done[1]+' &middot; Good '+done[2]+' &middot; Easy '+done[3]+'</div></div>'+
+    '<button class="bigbtn" onclick="APP.go(\'#/home\')">家 Home</button>';
+  }
+  const id=S.q[S.i],[k,typ]=id.split(':'),e=MAP[k],c=P.cards[id];
+  const isNew=S.newSet.has(id)&&c.reps===0;
+  const front='<div class="prompt">'+(typ==='m'?'意味 MEANING':'読み READING')+(isNew?' &middot; NEW':'')+'</div><div class="big jp">'+e.k+'</div>';
+  let back='';
+  if(S.flip){
+    if(typ==='m'){
+      back='<div class="ans"><div style="font-weight:900;font-size:1.3rem">'+esc(e.m.join(', '))+'</div><div class="mnbox" style="margin-top:12px;text-align:left">'+e.mn+'</div></div>';
+    }else{
+      back='<div class="ans"><div class="readrow">'+e.on.map(o=>'<span class="readpill" data-say="'+esc(o)+'" onclick="APP.sayEl(this)"><b>ON</b>'+esc(o)+'</span>').join('')+e.kun.map(o=>'<span class="readpill kun" data-say="'+esc(o.replace('.',''))+'" onclick="APP.sayEl(this)"><b>KUN</b>'+kunDisp(o)+'</span>').join('')+'</div>'+
+      '<div class="vlist" style="text-align:left;margin-top:10px">'+e.voc.slice(0,2).map(v=>'<div class="v" data-say="'+esc(v[0])+'" onclick="APP.sayEl(this)"><span class="vw">'+esc(v[0])+'</span><span class="vr">'+esc(v[1])+'</span><span class="vg">'+esc(v[2])+'</span></div>').join('')+'</div></div>';
+    }
+  }
+  const controls=S.flip?
+    '<div class="grade">'+[0,1,2,3].map(g=>'<button class="g'+g+'" onclick="APP.grade('+g+')">'+['Again','Hard','Good','Easy'][g]+'<i>'+proj(c,g)+'</i></button>').join('')+'</div>':
+    '<button class="bigbtn ghost" onclick="APP.flip()">答えを見る Show answer</button>';
+  return head('Flashcards',true)+
+  '<div class="sessionbar"><span>'+(S.i+1)+' / '+S.q.length+'</span><div class="progress"><div style="width:'+(100*S.i/S.q.length)+'%"></div></div><button class="chip" onclick="APP.go(\'#/kanji/'+k+'\')">詳細</button><button class="chip" onclick="APP.go(\'#/cards\')">Set</button></div>'+
+  '<div class="fcard">'+front+back+'</div>'+controls;
+}
+APP.flip=function(){S.flip=true;render()};
+APP.grade=function(g){
+  const id=S.q[S.i];
+  schedule(P.cards[id],g);
+  S.n[g]++;
+  if(g===0)S.q.push(id);
+  S.i++;S.flip=false;save();render();
+};
+
+/* ===== QUIZ ENGINE ===== */
+let Q=null; // {list,i,score,answered,title,back,retry}
+function poolK(needVoc){
+  let p=ALLK.filter(k=>inStudySet(k,'ex')&&depth(k)>=1);
+  if(p.length<8)p=ALLK.filter(k=>inStudySet(k,'ex'));
+  if(p.length<4)p=studySetArr('ex');
+  if(needVoc)p=p.filter(k=>MAP[k].voc.length);
+  return p;
+}
+const READPOOL=[];DATA.forEach(d=>d.voc.forEach(v=>READPOOL.push(v[1])));
+const WORDPOOL=[];DATA.forEach(d=>d.voc.forEach(v=>WORDPOOL.push(v)));
+function readDistract(correct,n){
+  const near=READPOOL.filter(x=>x!==correct&&Math.abs(x.length-correct.length)<=1);
+  const out=[];const seen=new Set([correct]);
+  shuffle(near.length>=n?near:READPOOL.filter(x=>x!==correct)).forEach(x=>{if(out.length<n&&!seen.has(x)){out.push(x);seen.add(x)}});
+  return out;
+}
+function optify(correct,distract,fmt){
+  const opts=shuffle([correct].concat(distract));
+  return {opts:opts.map(fmt||(x=>x)),a:opts.indexOf(correct)};
+}
+function qMeaning(k){
+  const e=MAP[k];
+  const d=shuffle(ALLK.filter(x=>x!==k)).slice(0,3).map(x=>MAP[x].m[0]);
+  const o=optify(e.m[0],d);
+  return {k,skill:'meaning',html:'<div class="qbig jp">'+e.k+'</div><div class="qsub">この漢字の意味は? What does it mean?</div>',opts:o.opts.map(esc),a:o.a,jp:false,fb:esc(e.k)+' = '+esc(e.m.join(', '))};
+}
+function qReading(k,v){
+  const e=MAP[k];v=v||rand(e.voc);
+  const o=optify(v[1],readDistract(v[1],3));
+  return {k,skill:'reading',html:'<div class="qword jp">'+esc(v[0])+'</div><div class="qsub">読み方は? How is it read?</div>',opts:o.opts.map(esc),a:o.a,jp:true,fb:esc(v[0])+' = '+esc(v[1])+' &middot; '+esc(v[2])};
+}
+function qLook(k){
+  const e=MAP[k];
+  let cands=(e.sim||[]).map(s=>s[0]).filter(inDeck).filter(x=>x!==k);
+  const pad=shuffle(ALLK.filter(x=>x!==k&&!cands.includes(x)));
+  while(cands.length<3)cands.push(pad.pop());
+  cands=cands.slice(0,3);
+  const o=optify(k,cands);
+  return {k,skill:'meaning',html:'<div class="qtext">「<b>'+esc(e.m[0])+'</b>」の漢字はどれ?<br><span class="qsub">Which kanji means '+esc(e.m[0])+'?</span></div>',opts:o.opts,a:o.a,jp:true,big:true,fb:esc(e.k)+' = '+esc(e.m[0])+'. '+((e.sim&&e.sim[0])?esc(e.sim[0][0])+': '+esc(e.sim[0][1]):'')};
+}
+function qVocab(k,v){
+  const e=MAP[k];v=v||rand(e.voc);
+  const d=shuffle(WORDPOOL.filter(w=>w[0]!==v[0])).slice(0,3).map(w=>w[0]);
+  const o=optify(v[0],d);
+  return {k,skill:'vocab',html:'<div class="qtext">Which word means<br>&ldquo;<b>'+esc(v[2])+'</b>&rdquo;?</div>',opts:o.opts.map(esc),a:o.a,jp:true,fb:esc(v[0])+'（'+esc(v[1])+'）= '+esc(v[2])};
+}
+function qContext(k){
+  const e=MAP[k];
+  const ws=sentWords(e.sent[0]);
+  const tgt=ws.find(w=>w[0].includes(k))||ws[0];
+  const plain=plainSent(e.sent[0]).replace(tgt[0],'<u style="text-decoration-color:var(--crimson);text-decoration-thickness:3px">'+tgt[0]+'</u>');
+  const o=optify(tgt[1],readDistract(tgt[1],3));
+  return {k,skill:'context',html:'<div class="qsent jp">'+plain+'</div><div class="qsub">下線の言葉の読み方は? Reading of the underlined word?</div>',opts:o.opts.map(esc),a:o.a,jp:true,fb:esc(tgt[0])+' = '+esc(tgt[1])+'<br><span class="small">'+esc(e.sent[1])+'</span>'};
+}
+const GENS={meaning:qMeaning,reading:qReading,look:qLook,vocab:qVocab,context:qContext};
+const EXMETA={meaning:['意味','Meaning quiz','Kanji to meaning'],reading:['読み','Reading quiz','Word to kana'],look:['そっくり','Lookalikes','Pick the right kanji among confusables'],vocab:['語彙','Vocabulary','Meaning to word'],context:['文の中で','In context','Read the word inside a sentence']};
+function startQuiz(type){
+  const pool=shuffle(poolK(type==='reading'||type==='vocab'));
+  const list=pool.slice(0,10).map(k=>GENS[type](k));
+  Q={list,i:0,score:0,answered:false,title:EXMETA[type][1],back:'#/ex/hub',retry:()=>startQuiz(type)};
+}
+function startDrill(k){
+  const e=MAP[k];
+  let list=[qMeaning(k)];
+  e.voc.slice(0,3).forEach(v=>list.push(qReading(k,v)));
+  list.push(qLook(k));
+  if(e.voc.length)list.push(qVocab(k,e.voc[0]));
+  list.push(qContext(k));
+  Q={list:shuffle(list).slice(0,8),i:0,score:0,answered:false,title:e.k+' ドリル',back:'#/kanji/'+k,retry:()=>startDrill(k)};
+}
+function vQuiz(){
+  if(!Q)return head('Drills',true)+'<div class="panel">Session expired.</div>';
+  if(Q.i>=Q.list.length){
+    const sc=Q.score,tot=Q.list.length;
+    return head(Q.title,true)+'<div class="panel result"><div class="eyebrow">Result</div><div class="score" style="color:'+(sc/tot>=0.8?'var(--teal-deep)':sc/tot>=0.5?'var(--orange)':'var(--crimson)')+'">'+sc+'<span style="font-size:1.4rem;color:#8B929B">/'+tot+'</span></div></div>'+
+    '<div class="btnrow"><button class="bigbtn ghost" onclick="APP.retry()">もう一度 Again</button><button class="bigbtn" onclick="APP.go(\''+Q.back+'\')">OK</button></div>';
+  }
+  const q=Q.list[Q.i];
+  const opts=q.opts.map((o,i)=>{
+    let cls='opt'+(q.jp?' jpop':'');
+    let sty=q.big?' style="font-family:var(--glyphfont);font-size:2.3rem"':'';
+    if(Q.answered){
+      if(i===q.a)cls+=' right';
+      else if(i===Q.pick)cls+=' wrong';
+      else cls+=' dim';
+    }
+    return '<button class="'+cls+'"'+sty+' onclick="APP.pick('+i+')">'+o+'</button>';
+  }).join('');
+  const fb=Q.answered?'<div class="feedback"><div class="fb">'+(Q.pick===q.a?'<b style="color:var(--teal-deep)">正解!</b> ':'<b style="color:var(--crimson)">おしい!</b> ')+q.fb+' <a style="font-weight:800;color:var(--teal-deep)" href="#/kanji/'+q.k+'">詳しく見る &rarr;</a></div><button class="bigbtn" style="margin-top:12px" onclick="APP.next()">'+(Q.i+1>=Q.list.length?'結果 Result':'次へ Next')+'</button></div>':'';
+  return head(Q.title,true)+
+  '<div class="sessionbar"><span>'+(Q.i+1)+' / '+Q.list.length+'</span><div class="progress"><div style="width:'+(100*Q.i/Q.list.length)+'%"></div></div><span>'+Q.score+'点</span></div>'+
+  '<div class="qprompt">'+q.html+'</div>'+
+  '<div class="opts'+(q.big?' two':'')+'">'+opts+'</div>'+fb;
+}
+APP.pick=function(i){
+  if(!Q||Q.answered)return;
+  const q=Q.list[Q.i];
+  Q.answered=true;Q.pick=i;
+  const ok=i===q.a;
+  if(ok)Q.score++;
+  logSkill(q.k,q.skill,ok);
+  render();
+};
+APP.next=function(){Q.i++;Q.answered=false;Q.pick=-1;render()};
+APP.retry=function(){if(Q&&Q.retry){Q.retry();render()}};
+APP.startEx=function(t){startQuiz(t);go('#/ex/run')};
+
+function vExHub(){
+  const n=studySetArr('ex').length;
+  const tiles=Object.keys(EXMETA).map((t,i)=>
+    '<button class="tile'+(i%2?' crim':'')+'" onclick="APP.startEx(\''+t+'\')"><h3>'+EXMETA[t][0]+' '+EXMETA[t][1]+'</h3><div class="sub">'+EXMETA[t][2]+'</div></button>').join('');
+  return head()+
+  '<div class="pickbar" style="margin-bottom:12px"><span class="pickcount">'+n+' kanji in set</span><button class="chip" onclick="APP.go(\'#/ex\')">Change set</button></div>'+
+  '<div class="muted small" style="margin-bottom:12px">10 questions drawn from your selected set. Results feed each kanji\'s depth.</div>'+tiles;
+}
+
+/* ===== READING ===== */
+let R=null;
+function vRead(){
+  const rows=PASSAGES.map((p,i)=>{
+    const sc=P.readScores[i];
+    return '<button class="tile'+(i%2?' crim':'')+'" onclick="APP.go(\'#/read/'+i+'\')"><h3 class="jp">'+esc(p.t)+(sc?'<span class="duebadge" style="background:var(--teal-deep)">'+sc.s+'/'+sc.t+'</span>':'')+'</h3><div class="sub">'+esc(p.en)+' &middot; '+esc(p.lv)+'</div></button>';
+  }).join('');
+  return head()+'<div class="muted small" style="margin-bottom:12px">Short passages within N4 and N5. Tap any word for its reading, then answer the questions.</div>'+rows;
+}
+function vPassage(i){
+  const p=PASSAGES[i];
+  if(!p)return head('読',true)+'<div class="panel">Not found.</div>';
+  if(!R||R.pi!==i){R={pi:i,qi:0,score:0,answered:false,pick:-1}}
+  let quiz='';
+  if(R.qi>=p.qs.length){
+    if(!R.saved){P.readScores[i]={s:R.score,t:p.qs.length};R.saved=true;save()}
+    quiz='<div class="panel result"><div class="eyebrow">Result</div><div class="score" style="color:'+(R.score===p.qs.length?'var(--teal-deep)':'var(--orange)')+'">'+R.score+'<span style="font-size:1.4rem;color:#8B929B">/'+p.qs.length+'</span></div></div>'+
+    '<div class="btnrow"><button class="bigbtn ghost" onclick="APP.rretry()">もう一度 Again</button><button class="bigbtn" onclick="APP.go(\'#/read\')">読み物一覧 All passages</button></div>';
+  }else{
+    const q=p.qs[R.qi];
+    const opts=q.o.map((o,j)=>{
+      let cls='opt jpop';
+      if(R.answered){if(j===q.a)cls+=' right';else if(j===R.pick)cls+=' wrong';else cls+=' dim'}
+      return '<button class="'+cls+'" style="font-size:1rem" onclick="APP.rpick('+j+')">'+esc(o)+'</button>';
+    }).join('');
+    const fb=R.answered?'<div class="feedback"><button class="bigbtn" style="margin-top:4px" onclick="APP.rnext()">'+(R.qi+1>=p.qs.length?'結果 Result':'次へ Next')+'</button></div>':'';
+    quiz='<div class="sessionbar"><span>問 '+(R.qi+1)+' / '+p.qs.length+'</span><div class="progress"><div style="width:'+(100*R.qi/p.qs.length)+'%"></div></div><span>'+R.score+'点</span></div>'+
+    '<div class="qprompt" style="text-align:left"><div class="qtext jp">'+esc(q.q)+'</div></div>'+
+    '<div class="opts">'+opts+'</div>'+fb;
+  }
+  return head(esc(p.t),true)+
+  '<div class="hint">Tap a word for its reading and audio</div>'+
+  '<div class="passage" id="pbody"><div class="ptitle">'+esc(p.t)+' <span class="muted small">'+esc(p.en)+'</span></div>'+furiHTML(p.body)+'</div>'+
+  '<div style="display:flex;gap:8px;margin-bottom:16px"><button class="chip" data-say="'+esc(plainSent(p.body))+'" onclick="APP.sayEl(this)">&#9654; 音声 Speak</button><button class="chip" data-on="0" onclick="APP.toggleAll(this,\'pbody\')">すべて表示 Show all</button></div>'+
+  quiz;
+}
+APP.rpick=function(j){
+  if(!R||R.answered)return;
+  const p=PASSAGES[R.pi],q=p.qs[R.qi];
+  R.answered=true;R.pick=j;
+  if(j===q.a)R.score++;
+  render();
+};
+APP.rnext=function(){R.qi++;R.answered=false;R.pick=-1;render()};
+APP.rretry=function(){R={pi:R.pi,qi:0,score:0,answered:false,pick:-1};render()};
+
+/* ===== SETTINGS ===== */
+let armReset=false;
+function vSettings(){
+  return head('Settings',true)+
+  '<div class="panel"><h2>学習 Study</h2><div class="setrow"><span style="font-weight:700">New kanji per day</span><div class="stepper"><button onclick="APP.step(-1)">&minus;</button><span>'+P.settings.newPerDay+'</span><button onclick="APP.step(1)">+</button></div></div></div>'+
+  '<div class="panel"><h2>データ Data</h2>'+
+  '<div class="btnrow"><button class="bigbtn ghost" onclick="APP.doExport()">Export progress</button><button class="bigbtn ghost" onclick="APP.doImport()">Import</button></div>'+
+  '<textarea class="io" id="io" placeholder="Export fills this box. To import, paste a backup here and press Import."></textarea>'+
+  '<div class="notice" id="ionote">Progress saves automatically in this browser. Export gives you a text backup you can paste back in anywhere.</div>'+
+  '<div style="height:10px"></div><button class="bigbtn" style="background:var(--crimson);box-shadow:5px 5px 0 var(--ink)" id="resetbtn" onclick="APP.doReset()">Reset all progress</button></div>'+
+  '<div class="panel"><h2>この アプリ About</h2><div class="notice">188 kanji following the widely used community N4 list. The JLPT has not published official kanji lists since 2010, so every N4 list is an approximation.<br><br>Reading first: this app covers recognition, readings, meaning, and context only. There is no stroke order and no writing practice anywhere, by design.<br><br>The style toggle on each kanji page switches every large glyph between Gothic, Mincho, and Textbook style. Textbook style is the closest to handwritten forms, so it is worth reading all three.<br><br>Audio uses Google Translate text-to-speech through a same-origin proxy for natural Japanese pronunciation when you tap words, readings, or the Speak button. An internet connection is required. If Google audio is blocked, the app falls back to your device voice.<br><br>Depth 0 to 5 per kanji combines flashcard spacing with drill accuracy across meaning, reading, vocabulary, and context. Mastered means long intervals and 90 percent accuracy over many attempts.</div></div>';
+}
+APP.step=function(d){P.settings.newPerDay=Math.min(20,Math.max(2,P.settings.newPerDay+d));save();render()};
+APP.doExport=function(){document.getElementById('io').value=JSON.stringify(P);document.getElementById('ionote').textContent='Copied into the box. Select all and copy it somewhere safe.'};
+APP.doImport=function(){
+  const t=document.getElementById('io').value.trim();
+  if(!t){document.getElementById('ionote').textContent='Paste a backup into the box first.';return}
+  try{const o=JSON.parse(t);if(!o.cards)throw 0;P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);save();document.getElementById('ionote').textContent='Imported. Your progress is restored.';}
+  catch(e){document.getElementById('ionote').textContent='That did not look like a valid backup.'}
+  applyFont();
+};
+APP.doReset=function(){
+  const b=document.getElementById('resetbtn');
+  if(!armReset){armReset=true;b.textContent='Tap again to confirm reset';return}
+  P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:P.settings.newPerDay,glyphFont:P.settings.glyphFont},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
+  armReset=false;S=null;Q=null;R=null;save();render();
+};
+
+/* ===== RENDER ===== */
+function render(){
+  const p=route();
+  const app=document.getElementById('app');
+  let html='';
+  switch(p[0]||'home'){
+    case 'home':html=vHome();break;
+    case 'browse':html=vBrowse();break;
+    case 'kanji':html=vKanji(decodeURIComponent(p[1]||''));break;
+    case 'cards':
+      if(p[1]==='play'){
+        if(!(P.studySets&&P.studySets.cards&&P.studySets.cards.ok)){go('#/cards');return}
+        html=vCards();
+      }else html=vSetPick('cards');
+      break;
+    case 'ex':
+      if(p[1]==='run')html=vQuiz();
+      else if(p[1]==='hub'){
+        if(!(P.studySets&&P.studySets.ex&&P.studySets.ex.ok)){go('#/ex');return}
+        html=vExHub();
+      }else html=vSetPick('ex');
+      break;
+    case 'drill':{const k=decodeURIComponent(p[1]||'');if(!Q||Q.back!=='#/kanji/'+k||Q.i>=Q.list.length)startDrill(k);html=vQuiz();break}
+    case 'read':html=(p[1]!==undefined&&p[1]!=='')?vPassage(parseInt(p[1],10)):vRead();break;
+    case 'settings':armReset=false;html=vSettings();break;
+    default:html=vHome();
+  }
+  app.innerHTML=html;
+  renderNav();
+  if((p[0]||'home')==='browse')bindBrowse();
+  if(p[0]==='cards'&&p[1]!=='play')bindSetPick();
+  if(p[0]==='ex'&&!p[1])bindSetPick();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',render);
+
+(async function init(){
+  try{
+    const v=await store.load();
+    if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);
+      P.settings=Object.assign({newPerDay:8,glyphFont:'gothic'},P.settings);
+      P.studySets=Object.assign({cards:{sel:null,ok:false},ex:{sel:null,ok:false}},P.studySets||{})}
+  }catch(e){}
+  if(!P.settings.glyphFont)P.settings.glyphFont='gothic';
+  applyFont();
+  registerSw();
+  if(!location.hash)location.hash='#/home';
+  render();
+})();
+</script>
+</body></html>
