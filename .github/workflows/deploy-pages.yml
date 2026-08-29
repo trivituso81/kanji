@@ -21,6 +21,7 @@ jobs:
         run: |
           mkdir -p _site/icons docs/icons
           cp index.html sw.js apple-touch-icon.png manifest.webmanifest _site/
+          cp index.html _site/404.html
           cp icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png _site/icons/
           cp index.html sw.js apple-touch-icon.png manifest.webmanifest docs/
           cp icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png docs/icons/
