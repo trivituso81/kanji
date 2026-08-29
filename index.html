@@ -2004,6 +2004,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function kunDisp(s){const i=s.indexOf('.');return i<0?esc(s):esc(s.slice(0,i))+'<span class="oku">・'+esc(s.slice(i+1))+'</span>'}
+function readPillsHTML(e){
+  const onP=(e.on||[]).map(o=>'<span class="readpill" data-say="'+esc(o)+'" onclick="APP.sayEl(this)"><b>ON</b>'+esc(o)+'</span>').join('');
+  const kunP=(e.kun||[]).map(o=>'<span class="readpill kun" data-say="'+esc(o.replace('.',''))+'" onclick="APP.sayEl(this)"><b>KUN</b>'+kunDisp(o)+'</span>').join('');
+  return '<div class="readrow">'+onP+kunP+'</div>';
+}
 /* After {kanji|reading}, attach all following kana that belong to the same word
    (verbs, adjectives, nouns with okurigana). Skip bare particles between words. */
 const FURI_SOLO_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','で','と','も','へ','や','の','ね','よ','ぞ','さ','わ'];
@@ -2404,10 +2409,12 @@ function vCards(){
   const front='<div class="prompt">'+(typ==='m'?'意味 MEANING':'読み READING')+(isNew?' &middot; NEW':'')+'</div><div class="big jp">'+e.k+'</div>';
   let back='';
   if(S.flip){
+    const reads=readPillsHTML(e);
     if(typ==='m'){
-      back='<div class="ans"><div style="font-weight:900;font-size:1.3rem">'+esc(e.m.join(', '))+'</div><div class="mnbox" style="margin-top:12px;text-align:left">'+e.mn+'</div></div>';
+      back='<div class="ans"><div style="font-weight:900;font-size:1.3rem">'+esc(e.m.join(', '))+'</div>'+reads+
+      '<div class="mnbox" style="margin-top:12px;text-align:left">'+e.mn+'</div></div>';
     }else{
-      back='<div class="ans"><div class="readrow">'+e.on.map(o=>'<span class="readpill" data-say="'+esc(o)+'" onclick="APP.sayEl(this)"><b>ON</b>'+esc(o)+'</span>').join('')+e.kun.map(o=>'<span class="readpill kun" data-say="'+esc(o.replace('.',''))+'" onclick="APP.sayEl(this)"><b>KUN</b>'+kunDisp(o)+'</span>').join('')+'</div>'+
+      back='<div class="ans">'+reads+
       '<div class="vlist" style="text-align:left;margin-top:10px">'+e.voc.slice(0,2).map(v=>'<div class="v" data-say="'+esc(v[0])+'" onclick="APP.sayEl(this)"><span class="vw">'+esc(v[0])+'</span><span class="vr">'+esc(v[1])+'</span><span class="vg">'+esc(v[2])+'</span></div>').join('')+'</div></div>';
     }
   }
