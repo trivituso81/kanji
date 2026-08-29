@@ -1916,6 +1916,8 @@ function setPickRefresh(){
   const btn=document.querySelector('#app .bigbtn:not(.ghost)');
   if(btn)btn.disabled=!SET_EDIT.sel.size;
 }
+const APP={go,toggleAll};
+window.APP=APP;
 APP.setToggle=function(el){
   if(!SET_EDIT)return;
   const k=el.dataset.k;
@@ -2209,12 +2211,10 @@ function applyFont(){
 /* ===== router ===== */
 function go(h){location.hash=h}
 function route(){const h=location.hash||'#/home';return h.slice(2).split('/')}
-const APP={go,toggleAll};
 APP.setFont=function(f){
   P.settings.glyphFont=f;save();applyFont();
   document.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('on',b.dataset.font===f));
 };
-window.APP=APP;
 
 APP.sayEl=function(el){
   if(!el||!el.dataset)return;
