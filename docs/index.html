@@ -1882,9 +1882,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function rand(a){return a[Math.floor(Math.random()*a.length)]}
 function kunDisp(s){const i=s.indexOf('.');return i<0?esc(s):esc(s.slice(0,i))+'<span class="oku">・'+esc(s.slice(i+1))+'</span>'}
-/* Attach okurigana after {kanji|reading} so 働いています taps/speaks as one word; leave particles alone. */
-const FURI_SOLO_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','で','と','も','へ','や','か','の','ね','よ','な','ぞ','さ','わ'];
-const FURI_STRIP_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','も','へ','や','か','の','ね','よ','な','ぞ','さ','わ','と'];
+/* After {kanji|reading}, attach all following kana that belong to the same word
+   (verbs, adjectives, nouns with okurigana). Skip bare particles between words. */
+const FURI_SOLO_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','で','と','も','へ','や','の','ね','よ','ぞ','さ','わ'];
+const FURI_LEAD_PART=['から','まで','より','ほど','など','とか','かも','には','にも','では','でも','とは','とも','ては','ても','も','は','が','を','に','で','と','へ','や','の'];
+const FURI_STRIP_PART=['から','まで','より','ほど','など','とか','かも','ので','のに','のだ','のです','んです','んだ','のは','のが','のを','には','にも','では','でも','とは','とも','ては','ても','は','が','を','に','も','へ','や','の','と'];
 function furiParticleOnly(s){
   let i=0;
   while(i<s.length){
@@ -1895,7 +1897,11 @@ function furiParticleOnly(s){
   }
   return s.length>0;
 }
-function furiStripParticles(s){
+function furiLeadParticle(s){
+  for(const p of FURI_LEAD_PART){if(s.startsWith(p))return true}
+  return false;
+}
+function furiStripEnd(s){
   let changed=true;
   while(changed&&s){
     changed=false;
@@ -1905,13 +1911,20 @@ function furiStripParticles(s){
   }
   return s;
 }
+function furiTrimGrammar(h){
+  h=furiStripEnd(h);
+  h=h.replace(/い(です|でした|だ)$/,'い');
+  h=h.replace(/(くない)(です|でした|だ)?$/,'$1');
+  return h;
+}
 function absorbOkuri(after){
-  const m=after.match(/^([\u3040-\u309F\u30A0-\u30FFーゝゞヽヾ]+)/);
+  const m=after.match(/^([\u3040-\u309F\u30A0-\u30FFー]+)/);
   if(!m)return '';
   const h=m[1];
   if(h==='ご'||h==='お')return '';
   if(furiParticleOnly(h))return '';
-  return furiStripParticles(h);
+  if(furiLeadParticle(h))return '';
+  return furiTrimGrammar(h);
 }
 function furiHTML(markup){
   let out='',i=0,m;
