@@ -6,7 +6,11 @@ A single-page JLPT N4 kanji study app with spaced repetition, drills, and readin
 
 **https://trivituso81.github.io/kanji/**
 
-### First-time setup (fixes 404)
+The `/kanji/` at the end is required. **https://trivituso81.github.io/** (without `kanji`) will always 404.
+
+If you see a 404 on your iPhone home-screen icon, delete it and re-add from the full URL above in Safari.
+
+### First-time setup (if the site never loads)
 
 GitHub Pages must be enabled once:
 
