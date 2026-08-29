@@ -105,6 +105,12 @@ nav button.on{color:var(--ink);background:var(--grad2);border:2px solid var(--in
 .setpick .pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .setpick .pickcount{font-weight:900;font-size:1rem}
 .setpick .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.startbar{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:40;
+  padding:10px 14px;background:rgba(251,247,240,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-top:3px solid var(--ink)}
+.startbar .bigbtn{margin:0 auto;max-width:720px}
+.startbar .bigbtn:disabled{opacity:.45}
+body.setpicking{padding-bottom:160px}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:2.5px solid var(--ink);border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:800;background:#fff}
 .chip.on{background:var(--ink);color:#fff}
@@ -1893,6 +1899,7 @@ function vSetPick(mode){
   const quick=[['All','setAll()'],['Clear','setClear()'],['5','setCount(5)'],['10','setCount(10)'],['15','setCount(15)'],['20','setCount(20)']].map(x=>
     '<button type="button" class="chip" onclick="APP.'+x[1]+'">'+x[0]+'</button>').join('');
   const startLbl=mode==='cards'?'Start flashcards':'Continue to drills';
+  document.body.classList.add('setpicking');
   return head()+
   '<div class="panel setpick"><div class="eyebrow">'+jptitle+' Set</div><h2>'+title+' kanji</h2>'+
   '<div class="muted small" style="margin-bottom:12px">Choose which characters to include. Default is all 188 — tap the grid to pick a subset (e.g. 5, 10, or 15).</div>'+
@@ -1901,7 +1908,7 @@ function vSetPick(mode){
   '<input class="search" id="setq" type="search" placeholder="Search to narrow&hellip;" value="'+esc(SET_EDIT.q)+'">'+
   '<div class="filters">'+chips+'</div>'+
   '<div id="setgridwrap">'+setPickGridHTML()+'</div></div>'+
-  '<button class="bigbtn"'+(n?'':' disabled style="opacity:.45"')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button>';
+  '<div class="startbar"><button class="bigbtn" id="setstart"'+(n?'':' disabled')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button></div>';
 }
 function bindSetPick(){
   const inp=document.getElementById('setq');
@@ -1912,7 +1919,7 @@ function setPickRefresh(){
   if(el)el.textContent=SET_EDIT.sel.size+' selected';
   const wrap=document.getElementById('setgridwrap');
   if(wrap)wrap.innerHTML=setPickGridHTML();
-  const btn=document.querySelector('#app .bigbtn:not(.ghost)');
+  const btn=document.getElementById('setstart');
   if(btn)btn.disabled=!SET_EDIT.sel.size;
 }
 const APP={go,toggleAll};
@@ -2635,6 +2642,7 @@ APP.doReset=function(){
 function render(){
   const p=route();
   const app=document.getElementById('app');
+  document.body.classList.remove('setpicking');
   let html='';
   switch(p[0]||'home'){
     case 'home':html=vHome();break;
