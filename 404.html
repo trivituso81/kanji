@@ -2091,11 +2091,20 @@ function gTtsUrls(text){
     return [appBase()+'tts?q='+q,...google];
   return google;
 }
+const DEPLOY_BASE='/kanji/';
 function appBase(){
-  let p=location.pathname;
+  const p=location.pathname;
+  if(p.startsWith(DEPLOY_BASE)||p===DEPLOY_BASE.slice(0,-1))return DEPLOY_BASE;
   if(p.endsWith('/'))return p;
   if(/\.html$/i.test(p))return p.slice(0,p.lastIndexOf('/')+1);
   return p+'/';
+}
+function fixPathRoute(){
+  const m=location.pathname.match(/^\/kanji\/(.*)$/);
+  if(!m)return;
+  const rest=m[1].replace(/\/$/,'');
+  if(!rest||location.hash)return;
+  location.replace(DEPLOY_BASE+'#/'+rest.replace(/^\/+/,'')+location.search);
 }
 function registerSw(){
   if(!('serviceWorker' in navigator))return Promise.resolve();
@@ -2646,6 +2655,7 @@ function render(){
 window.addEventListener('hashchange',render);
 
 (async function init(){
+  fixPathRoute();
   try{
     const v=await store.load();
     if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);

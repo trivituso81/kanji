@@ -2,7 +2,7 @@
   "name": "N4 漢字",
   "short_name": "N4 漢字",
   "description": "JLPT N4 kanji study — flashcards, drills, and reading",
-  "start_url": "/kanji/",
+  "start_url": "https://trivituso81.github.io/kanji/",
   "scope": "/kanji/",
   "id": "/kanji/",
   "display": "standalone",
