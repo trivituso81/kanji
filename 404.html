@@ -2004,6 +2004,31 @@ function depth(k){
   if(m.reps>=1&&r.reps>=1&&iv>=1)return 2;
   return 1;
 }
+/** Jump a kanji to depth 5 (Mastered) so flashcards skip it as due. */
+function markMastered(k){
+  if(!MAP[k])return;
+  ensureCards(k);
+  const t=today();
+  [k+':m',k+':r'].forEach(id=>{
+    const c=P.cards[id];
+    c.iv=Math.max(c.iv||0,21);
+    c.reps=Math.max(c.reps||0,1);
+    c.ease=Math.max(c.ease||2.5,2.5);
+    c.due=t+c.iv;
+  });
+  P.seen[k]=1;
+  P.skills[k]=P.skills[k]||{};
+  SKILLS.forEach(sk=>{P.skills[k][sk]=Array(6).fill(1)});
+  save();
+}
+function unmarkMastered(k){
+  if(!MAP[k])return;
+  delete P.cards[k+':m'];
+  delete P.cards[k+':r'];
+  delete P.skills[k];
+  delete P.seen[k];
+  save();
+}
 
 /* ===== utils ===== */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
@@ -2234,6 +2259,16 @@ APP.setFont=function(f){
   P.settings.glyphFont=f;save();applyFont();
   document.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('on',b.dataset.font===f));
 };
+APP.markMastered=function(k){
+  markMastered(k);
+  toast(k+' → Mastered (depth 5)');
+  render();
+};
+APP.unmarkMastered=function(k){
+  unmarkMastered(k);
+  toast(k+' reset to New');
+  render();
+};
 
 APP.sayEl=function(el){
   if(!el||!el.dataset)return;
@@ -2318,6 +2353,7 @@ function vBrowse(){
   return head()+
   '<input class="search" id="bq" type="search" placeholder="Search kanji, meaning, reading&hellip;" value="'+esc(BQ)+'">'+
   '<div class="filters" id="chips">'+chips+'</div>'+
+  '<div class="muted small" style="margin:-4px 0 12px">Tap a kanji → Depth → <b>Already know — mark Mastered</b></div>'+
   '<div id="kgrid">'+gridHTML()+'</div>';
 }
 function bindBrowse(){
@@ -2369,6 +2405,9 @@ function vKanji(k){
   const srsLine=(m&&m.reps)||((r&&r.reps))?
     '<div class="muted small" style="margin-top:6px">SRS: meaning '+(m?m.iv+'d':'&ndash;')+' &middot; reading '+(r?r.iv+'d':'&ndash;')+' &middot; attempts '+skillN(k)+'</div>':
     '<div class="muted small" style="margin-top:6px">Not in flashcards yet. It joins automatically as a new card, or drill it below.</div>';
+  const masterBtn=d>=5
+    ?'<button class="bigbtn ghost" style="margin-top:12px" onclick="APP.unmarkMastered(\''+k+'\')">Mastered — tap to reset to New</button>'
+    :'<button class="bigbtn ghost" style="margin-top:12px" onclick="APP.markMastered(\''+k+'\')">★ Already know — mark Mastered</button>';
   return head(e.k,true)+
   '<div class="hero">'+ringSVG(d)+
     '<div class="glyph jp" data-say="'+esc(e.k)+'" onclick="APP.sayEl(this)">'+e.k+'</div>'+
@@ -2376,7 +2415,7 @@ function vKanji(k){
     '<div class="readrow">'+onP+kunP+'</div>'+
     '<div class="fontrow">'+Object.keys(FONTS).map(f=>'<button class="chip'+((P.settings.glyphFont||'gothic')===f?' on':'')+'" data-font="'+f+'" onclick="APP.setFont(\''+f+'\')">'+FONTS[f].jp+'<small>'+FONTS[f].en+'</small></button>').join('')+'</div>'+
   '</div>'+
-  sect('深さ','Depth '+d+' of 5',skillbarsHTML(k)+srsLine)+
+  sect('深さ','Depth '+d+' of 5',skillbarsHTML(k)+srsLine+masterBtn)+
   sect('成り立ち','Origin','<div class="etybox"><span class="etype">'+esc(e.etype)+'</span><div>'+esc(e.ety)+'</div></div><div class="mnbox">'+e.mn+'</div>')+
   sect('部首と部品','Radical and parts',compCards)+
   sect('語彙','Vocabulary',vocList)+
