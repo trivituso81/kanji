@@ -99,6 +99,12 @@ nav button.on{color:var(--ink);background:var(--grad2);border:2px solid var(--in
   box-shadow:3px 3px 0 var(--ink)}
 .kcell:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
 .kcell .dot{position:absolute;top:5px;right:5px;width:11px;height:11px;border:2px solid var(--ink);border-radius:50%}
+.kcell.pick{cursor:pointer;user-select:none;-webkit-user-select:none}
+.kcell.sel{background:var(--grad2);box-shadow:3px 3px 0 var(--teal-deep)}
+.kcell.dimsel{opacity:.42}
+.setpick .pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.setpick .pickcount{font-weight:900;font-size:1rem}
+.setpick .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:2.5px solid var(--ink);border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:800;background:#fff}
 .chip.on{background:var(--ink);color:#fff}
@@ -1824,7 +1830,7 @@ const store={
   }
 };
 
-let P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},v:1};
+let P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
 let saveT=null;
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>store.save(JSON.stringify(P)),300)}
 function today(){return Math.floor(Date.now()/864e5)}
@@ -1835,6 +1841,120 @@ const ALLK=DATA.map(d=>d.k);
 const DCOL=['#C4C9CF','#F59E0B','#4FC3BD','#0FA3A3','#0B7C7C','#D4A017'];
 const DLBL=['0 New','1 Seen','2 Learning','3 Known','4 Strong','5 Mastered'];
 function inDeck(k){return !!MAP[k]}
+
+/* ===== study set picker (cards + drills) ===== */
+function studySetArr(mode){
+  const ss=(P.studySets||{})[mode];
+  if(!ss||!ss.sel)return ALLK.slice();
+  return ss.sel.filter(k=>MAP[k]);
+}
+function inStudySet(k,mode){
+  const ss=(P.studySets||{})[mode];
+  if(!ss||!ss.sel)return true;
+  return ss.sel.indexOf(k)>=0;
+}
+let SET_EDIT=null; // {mode, sel:Set, filter, q}
+function setPickInit(mode){
+  const ss=(P.studySets||{})[mode]||{sel:null,ok:false};
+  const sel=new Set(ss.sel?ss.sel.slice():ALLK);
+  SET_EDIT={mode,sel,filter:-1,q:''};
+}
+function setPickList(){
+  if(!SET_EDIT)return [];
+  return DATA.filter(d=>{
+    if(SET_EDIT.filter>=0&&depth(d.k)!==SET_EDIT.filter)return false;
+    if(SET_EDIT.q){
+      const q=SET_EDIT.q.toLowerCase();
+      if(d.k===SET_EDIT.q||d.k.includes(SET_EDIT.q))return true;
+      if(d.m.join(' ').toLowerCase().includes(q))return true;
+      if(d.on.join(' ').includes(SET_EDIT.q)||d.kun.join(' ').replace(/\./g,'').includes(SET_EDIT.q))return true;
+      return false;
+    }
+    return true;
+  });
+}
+function setPickGridHTML(){
+  const list=setPickList();
+  const allOn=list.length>0&&list.every(d=>SET_EDIT.sel.has(d.k));
+  const cells=list.map(d=>{
+    const on=SET_EDIT.sel.has(d.k);
+    return '<button type="button" class="kcell pick jp'+(on?' sel':' dimsel')+'" data-k="'+esc(d.k)+'" onclick="APP.setToggle(this)">'+d.k+depthDot(depth(d.k))+'</button>';
+  }).join('');
+  return '<div class="muted small" style="margin-bottom:8px">'+list.length+' shown &middot; tap to select multiple</div>'+
+    '<div class="kgrid" id="setgrid">'+cells+'</div>';
+}
+function vSetPick(mode){
+  if(!SET_EDIT||SET_EDIT.mode!==mode)setPickInit(mode);
+  const n=SET_EDIT.sel.size;
+  const title=mode==='cards'?'Flashcards':'Drills';
+  const jptitle=mode==='cards'?'札':'練';
+  const chips=[['All',-1],['0',0],['1',1],['2',2],['3',3],['4',4],['5',5]].map(c=>
+    '<button type="button" class="chip'+(SET_EDIT.filter===c[1]?' on':'')+'" data-f="'+c[1]+'" onclick="APP.setFilter('+c[1]+')">'+c[0]+'</button>').join('');
+  const quick=[['All','setAll()'],['Clear','setClear()'],['5','setCount(5)'],['10','setCount(10)'],['15','setCount(15)'],['20','setCount(20)']].map(x=>
+    '<button type="button" class="chip" onclick="APP.'+x[1]+'">'+x[0]+'</button>').join('');
+  const startLbl=mode==='cards'?'Start flashcards':'Continue to drills';
+  return head()+
+  '<div class="panel setpick"><div class="eyebrow">'+jptitle+' Set</div><h2>'+title+' kanji</h2>'+
+  '<div class="muted small" style="margin-bottom:12px">Choose which characters to include. Default is all 188 — tap the grid to pick a subset (e.g. 5, 10, or 15).</div>'+
+  '<div class="pickbar"><span class="pickcount" id="setcount">'+n+' selected</span><span class="muted small">'+(n===ALLK.length?'All':'Custom')+'</span></div>'+
+  '<div class="quick">'+quick+'</div>'+
+  '<input class="search" id="setq" type="search" placeholder="Search to narrow&hellip;" value="'+esc(SET_EDIT.q)+'">'+
+  '<div class="filters">'+chips+'</div>'+
+  '<div id="setgridwrap">'+setPickGridHTML()+'</div></div>'+
+  '<button class="bigbtn"'+(n?'':' disabled style="opacity:.45"')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button>'+
+  (mode==='cards'?'<button class="bigbtn ghost" style="margin-top:10px" onclick="APP.go(\'#/home\')">Back home</button>':'');
+}
+function bindSetPick(){
+  const inp=document.getElementById('setq');
+  if(inp)inp.addEventListener('input',()=>{SET_EDIT.q=inp.value.trim();document.getElementById('setgridwrap').innerHTML=setPickGridHTML()});
+}
+function setPickRefresh(){
+  const el=document.getElementById('setcount');
+  if(el)el.textContent=SET_EDIT.sel.size+' selected';
+  const wrap=document.getElementById('setgridwrap');
+  if(wrap)wrap.innerHTML=setPickGridHTML();
+  const btn=document.querySelector('#app .bigbtn:not(.ghost)');
+  if(btn)btn.disabled=!SET_EDIT.sel.size;
+}
+APP.setToggle=function(el){
+  if(!SET_EDIT)return;
+  const k=el.dataset.k;
+  if(SET_EDIT.sel.has(k))SET_EDIT.sel.delete(k);else SET_EDIT.sel.add(k);
+  setPickRefresh();
+};
+APP.setAll=function(){
+  if(!SET_EDIT)return;
+  setPickList().forEach(d=>SET_EDIT.sel.add(d.k));
+  setPickRefresh();
+};
+APP.setClear=function(){
+  if(!SET_EDIT)return;
+  setPickList().forEach(d=>SET_EDIT.sel.delete(d.k));
+  setPickRefresh();
+};
+APP.setCount=function(n){
+  if(!SET_EDIT)return;
+  SET_EDIT.sel.clear();
+  setPickList().slice(0,n).forEach(d=>SET_EDIT.sel.add(d.k));
+  setPickRefresh();
+};
+APP.setFilter=function(f){
+  if(!SET_EDIT)return;
+  SET_EDIT.filter=f;
+  document.querySelectorAll('.setpick .filters .chip').forEach(ch=>{
+    ch.classList.toggle('on',parseInt(ch.dataset.f,10)===f);
+  });
+  document.getElementById('setgridwrap').innerHTML=setPickGridHTML();
+};
+APP.setStart=function(mode){
+  if(!SET_EDIT||!SET_EDIT.sel.size){toast('Pick at least one kanji');return}
+  P.studySets=P.studySets||{cards:{sel:null,ok:false},ex:{sel:null,ok:false}};
+  const n=SET_EDIT.sel.size;
+  P.studySets[mode]={sel:n>=ALLK.length?null:Array.from(SET_EDIT.sel),ok:true};
+  save();
+  if(mode==='cards'){S=null;go('#/cards/play')}
+  else go('#/ex/hub');
+};
 
 /* ===== SRS ===== */
 function ensureCards(k){
@@ -2099,9 +2219,10 @@ APP.tapWord=function(el){
 
 const NAVS=[['#/home','家','Home'],['#/browse','覧','Browse'],['#/cards','札','Cards'],['#/ex','練','Drills'],['#/read','読','Read']];
 function renderNav(){
-  const p=route()[0]||'home';
+  const p=route();
+  const p0=p[0]||'home';
   const map={home:'#/home',browse:'#/browse',kanji:'#/browse',cards:'#/cards',ex:'#/ex',drill:'#/ex',read:'#/read',settings:'#/home'};
-  const act=map[p]||'#/home';
+  const act=(p0==='cards'&&p[1]==='play')?'#/cards':(p0==='ex'&&(p[1]==='hub'||p[1]==='run'))?'#/ex':(map[p0]||'#/home');
   document.getElementById('nav').innerHTML=NAVS.map(n=>
     '<button class="'+(n[0]===act?'on':'')+'" onclick="APP.go(\''+n[0]+'\')"><span class="ic jp">'+n[1]+'</span>'+n[2]+'</button>'
   ).join('');
@@ -2243,19 +2364,25 @@ function buildSession(){
   const dstr=new Date().toDateString();
   if(P.intro.date!==dstr){P.intro={date:dstr,count:0}}
   const t=today();
-  const due=shuffle(Object.keys(P.cards).filter(id=>P.cards[id].due<=t));
+  const allowed=new Set(studySetArr('cards'));
+  const due=shuffle(Object.keys(P.cards).filter(id=>{
+    const k=id.split(':')[0];
+    return P.cards[id].due<=t&&allowed.has(k);
+  }));
   const left=Math.max(0,P.settings.newPerDay-P.intro.count);
-  const fresh=ALLK.filter(k=>!P.cards[k+':m']).slice(0,left);
+  const fresh=ALLK.filter(k=>!P.cards[k+':m']&&allowed.has(k)).slice(0,left);
   const newQ=[];
   fresh.forEach(k=>{ensureCards(k);P.intro.count++;newQ.push(k+':m',k+':r')});
   if(fresh.length)save();
   S={q:due.concat(newQ),i:0,flip:false,n:{0:0,1:0,2:0,3:0},newSet:new Set(newQ)};
 }
 function vCards(){
+  const n=studySetArr('cards').length;
   if(!S||S.done===true)buildSession();
   if(!S.q.length){
     S=null;
-    return head('Flashcards',true)+'<div class="panel" style="text-align:center;padding:34px 16px"><div style="font-size:2.6rem" class="jp">休</div><h2 style="margin-top:8px">All caught up</h2><div class="muted">No cards due and no new cards left today. Try a drill, or raise the daily new limit in Settings.</div></div>'+
+    return head('Flashcards',true)+'<div class="panel" style="text-align:center;padding:34px 16px"><div style="font-size:2.6rem" class="jp">休</div><h2 style="margin-top:8px">All caught up</h2><div class="muted">No cards due and no new cards left today in your set ('+n+' kanji). Try a drill, or change your set.</div></div>'+
+    '<button class="bigbtn ghost" onclick="APP.go(\'#/cards\')">Change set</button>'+
     '<button class="bigbtn ghost" onclick="APP.go(\'#/ex\')">練 Go to drills</button>';
   }
   if(S.i>=S.q.length){
@@ -2279,7 +2406,7 @@ function vCards(){
     '<div class="grade">'+[0,1,2,3].map(g=>'<button class="g'+g+'" onclick="APP.grade('+g+')">'+['Again','Hard','Good','Easy'][g]+'<i>'+proj(c,g)+'</i></button>').join('')+'</div>':
     '<button class="bigbtn ghost" onclick="APP.flip()">答えを見る Show answer</button>';
   return head('Flashcards',true)+
-  '<div class="sessionbar"><span>'+(S.i+1)+' / '+S.q.length+'</span><div class="progress"><div style="width:'+(100*S.i/S.q.length)+'%"></div></div><button class="chip" onclick="APP.go(\'#/kanji/'+k+'\')">詳細</button></div>'+
+  '<div class="sessionbar"><span>'+(S.i+1)+' / '+S.q.length+'</span><div class="progress"><div style="width:'+(100*S.i/S.q.length)+'%"></div></div><button class="chip" onclick="APP.go(\'#/kanji/'+k+'\')">詳細</button><button class="chip" onclick="APP.go(\'#/cards\')">Set</button></div>'+
   '<div class="fcard">'+front+back+'</div>'+controls;
 }
 APP.flip=function(){S.flip=true;render()};
@@ -2294,8 +2421,9 @@ APP.grade=function(g){
 /* ===== QUIZ ENGINE ===== */
 let Q=null; // {list,i,score,answered,title,back,retry}
 function poolK(needVoc){
-  let p=ALLK.filter(k=>depth(k)>=1);
-  if(p.length<8)p=ALLK.slice();
+  let p=ALLK.filter(k=>inStudySet(k,'ex')&&depth(k)>=1);
+  if(p.length<8)p=ALLK.filter(k=>inStudySet(k,'ex'));
+  if(p.length<4)p=studySetArr('ex');
   if(needVoc)p=p.filter(k=>MAP[k].voc.length);
   return p;
 }
@@ -2350,7 +2478,7 @@ const EXMETA={meaning:['意味','Meaning quiz','Kanji to meaning'],reading:['読
 function startQuiz(type){
   const pool=shuffle(poolK(type==='reading'||type==='vocab'));
   const list=pool.slice(0,10).map(k=>GENS[type](k));
-  Q={list,i:0,score:0,answered:false,title:EXMETA[type][1],back:'#/ex',retry:()=>startQuiz(type)};
+  Q={list,i:0,score:0,answered:false,title:EXMETA[type][1],back:'#/ex/hub',retry:()=>startQuiz(type)};
 }
 function startDrill(k){
   const e=MAP[k];
@@ -2399,9 +2527,12 @@ APP.retry=function(){if(Q&&Q.retry){Q.retry();render()}};
 APP.startEx=function(t){startQuiz(t);go('#/ex/run')};
 
 function vExHub(){
+  const n=studySetArr('ex').length;
   const tiles=Object.keys(EXMETA).map((t,i)=>
     '<button class="tile'+(i%2?' crim':'')+'" onclick="APP.startEx(\''+t+'\')"><h3>'+EXMETA[t][0]+' '+EXMETA[t][1]+'</h3><div class="sub">'+EXMETA[t][2]+'</div></button>').join('');
-  return head()+'<div class="muted small" style="margin-bottom:12px">10 questions, drawn from kanji you have started. Results feed each kanji\'s depth.</div>'+tiles;
+  return head()+
+  '<div class="pickbar" style="margin-bottom:12px"><span class="pickcount">'+n+' kanji in set</span><button class="chip" onclick="APP.go(\'#/ex\')">Change set</button></div>'+
+  '<div class="muted small" style="margin-bottom:12px">10 questions drawn from your selected set. Results feed each kanji\'s depth.</div>'+tiles;
 }
 
 /* ===== READING ===== */
@@ -2467,14 +2598,14 @@ APP.doExport=function(){document.getElementById('io').value=JSON.stringify(P);do
 APP.doImport=function(){
   const t=document.getElementById('io').value.trim();
   if(!t){document.getElementById('ionote').textContent='Paste a backup into the box first.';return}
-  try{const o=JSON.parse(t);if(!o.cards)throw 0;P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},v:1},o);save();document.getElementById('ionote').textContent='Imported. Your progress is restored.';}
+  try{const o=JSON.parse(t);if(!o.cards)throw 0;P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);save();document.getElementById('ionote').textContent='Imported. Your progress is restored.';}
   catch(e){document.getElementById('ionote').textContent='That did not look like a valid backup.'}
   applyFont();
 };
 APP.doReset=function(){
   const b=document.getElementById('resetbtn');
   if(!armReset){armReset=true;b.textContent='Tap again to confirm reset';return}
-  P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:P.settings.newPerDay,glyphFont:P.settings.glyphFont},readScores:{},v:1};
+  P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:P.settings.newPerDay,glyphFont:P.settings.glyphFont},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
   armReset=false;S=null;Q=null;R=null;save();render();
 };
 
@@ -2487,8 +2618,19 @@ function render(){
     case 'home':html=vHome();break;
     case 'browse':html=vBrowse();break;
     case 'kanji':html=vKanji(decodeURIComponent(p[1]||''));break;
-    case 'cards':html=vCards();break;
-    case 'ex':html=(p[1]==='run')?vQuiz():vExHub();break;
+    case 'cards':
+      if(p[1]==='play'){
+        if(!(P.studySets&&P.studySets.cards&&P.studySets.cards.ok)){go('#/cards');return}
+        html=vCards();
+      }else html=vSetPick('cards');
+      break;
+    case 'ex':
+      if(p[1]==='run')html=vQuiz();
+      else if(p[1]==='hub'){
+        if(!(P.studySets&&P.studySets.ex&&P.studySets.ex.ok)){go('#/ex');return}
+        html=vExHub();
+      }else html=vSetPick('ex');
+      break;
     case 'drill':{const k=decodeURIComponent(p[1]||'');if(!Q||Q.back!=='#/kanji/'+k||Q.i>=Q.list.length)startDrill(k);html=vQuiz();break}
     case 'read':html=(p[1]!==undefined&&p[1]!=='')?vPassage(parseInt(p[1],10)):vRead();break;
     case 'settings':armReset=false;html=vSettings();break;
@@ -2497,6 +2639,8 @@ function render(){
   app.innerHTML=html;
   renderNav();
   if((p[0]||'home')==='browse')bindBrowse();
+  if(p[0]==='cards'&&p[1]!=='play')bindSetPick();
+  if(p[0]==='ex'&&!p[1])bindSetPick();
   window.scrollTo(0,0);
 }
 window.addEventListener('hashchange',render);
@@ -2504,8 +2648,9 @@ window.addEventListener('hashchange',render);
 (async function init(){
   try{
     const v=await store.load();
-    if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},v:1},o);
-      P.settings=Object.assign({newPerDay:8,glyphFont:'gothic'},P.settings)}
+    if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);
+      P.settings=Object.assign({newPerDay:8,glyphFont:'gothic'},P.settings);
+      P.studySets=Object.assign({cards:{sel:null,ok:false},ex:{sel:null,ok:false}},P.studySets||{})}
   }catch(e){}
   if(!P.settings.glyphFont)P.settings.glyphFont='gothic';
   applyFont();
