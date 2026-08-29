@@ -1901,8 +1901,7 @@ function vSetPick(mode){
   '<input class="search" id="setq" type="search" placeholder="Search to narrow&hellip;" value="'+esc(SET_EDIT.q)+'">'+
   '<div class="filters">'+chips+'</div>'+
   '<div id="setgridwrap">'+setPickGridHTML()+'</div></div>'+
-  '<button class="bigbtn"'+(n?'':' disabled style="opacity:.45"')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button>'+
-  (mode==='cards'?'<button class="bigbtn ghost" style="margin-top:10px" onclick="APP.go(\'#/home\')">Back home</button>':'');
+  '<button class="bigbtn"'+(n?'':' disabled style="opacity:.45"')+' onclick="APP.setStart(\''+mode+'\')">'+startLbl+' &rarr;</button>';
 }
 function bindSetPick(){
   const inp=document.getElementById('setq');
@@ -2409,8 +2408,7 @@ function vCards(){
   }
   if(S.i>=S.q.length){
     const done=S.n;S=null;
-    return head('Flashcards',true)+'<div class="panel result"><div class="eyebrow">Session complete</div><div class="score">'+(done[2]+done[3])+'<span style="font-size:1.2rem;color:#8B929B">/'+(done[0]+done[1]+done[2]+done[3])+'</span></div><div class="muted small">Again '+done[0]+' &middot; Hard '+done[1]+' &middot; Good '+done[2]+' &middot; Easy '+done[3]+'</div></div>'+
-    '<button class="bigbtn" onclick="APP.go(\'#/home\')">家 Home</button>';
+    return head('Flashcards',true)+'<div class="panel result"><div class="eyebrow">Session complete</div><div class="score">'+(done[2]+done[3])+'<span style="font-size:1.2rem;color:#8B929B">/'+(done[0]+done[1]+done[2]+done[3])+'</span></div><div class="muted small">Again '+done[0]+' &middot; Hard '+done[1]+' &middot; Good '+done[2]+' &middot; Easy '+done[3]+'</div></div>';
   }
   const id=S.q[S.i],[k,typ]=id.split(':'),e=MAP[k],c=P.cards[id];
   const isNew=S.newSet.has(id)&&c.reps===0;
