@@ -19,9 +19,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build static site
         run: |
-          mkdir -p _site
-          cp index.html sw.js _site/
-          touch _site/.nojekyll
+          mkdir -p _site/icons docs/icons
+          cp index.html sw.js apple-touch-icon.png manifest.webmanifest _site/
+          cp icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png _site/icons/
+          cp index.html sw.js apple-touch-icon.png manifest.webmanifest docs/
+          cp icons/icon-192.png icons/icon-512.png icons/apple-touch-icon.png docs/icons/
+          touch _site/.nojekyll docs/.nojekyll
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: _site
