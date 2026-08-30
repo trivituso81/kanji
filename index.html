@@ -99,10 +99,25 @@ nav button.on{color:var(--ink);background:var(--grad2);border:2px solid var(--in
   font-family:var(--glyphfont);font-size:1.7rem;display:flex;align-items:center;justify-content:center;
   box-shadow:3px 3px 0 var(--ink)}
 .kcell:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
-.kcell .dot{position:absolute;top:5px;right:5px;width:11px;height:11px;border:2px solid var(--ink);border-radius:50%}
-.kcell.pick{cursor:pointer;user-select:none;-webkit-user-select:none}
-.kcell.sel{background:var(--grad2);box-shadow:3px 3px 0 var(--teal-deep)}
+.kcell.d0{background:var(--depth0)} .kcell.d1{background:var(--depth1);color:#fff}
+.kcell.d2{background:var(--depth2)} .kcell.d3{background:var(--depth3)}
+.kcell.d4{background:var(--depth4);color:#fff} .kcell.d5{background:var(--depth5);color:#fff}
+.kcell.pick{cursor:pointer;user-select:none;-webkit-user-select:none;background:#fff;color:var(--ink)}
+.kcell.sel:not(.pick){outline:4px solid var(--ink);outline-offset:-5px;box-shadow:3px 3px 0 var(--teal-deep)}
+.kcell.pick.sel{background:var(--grad2);color:var(--ink);outline:none;box-shadow:3px 3px 0 var(--teal-deep)}
 .kcell.dimsel{opacity:.42}
+.depthpick .depthrow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.depthbtn{border:3px solid var(--ink);border-radius:12px;padding:10px 4px;font-weight:800;font-size:.72rem;
+  background:#fff;cursor:pointer;text-align:center;line-height:1.2}
+.depthbtn:active{transform:translate(2px,2px)}
+.depthbtn.on{box-shadow:0 0 0 3px var(--ink)}
+.depthbtn.d1{background:var(--depth1);color:#fff}
+.depthbtn.d2{background:var(--depth2)}
+.depthbtn.d3{background:var(--depth3)}
+.depthbtn.d4{background:var(--depth4);color:#fff}
+.depthbtn.d5{background:var(--depth5);color:#fff}
+.depthbtn .dn{display:block;font-size:1.15rem;font-weight:900}
+.depthbtn .dl{display:block;font-size:.58rem;font-weight:700;margin-top:3px;opacity:.92}
 .setpick .pickbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
 .setpick .pickcount{font-weight:900;font-size:1rem}
 .setpick .quick{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
@@ -2577,7 +2592,7 @@ const store={
   }
 };
 
-let P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
+let P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},depthSet:{},v:1};
 let saveT=null;
 function save(){clearTimeout(saveT);saveT=setTimeout(()=>store.save(JSON.stringify(P)),300)}
 function today(){return Math.floor(Date.now()/864e5)}
@@ -2737,6 +2752,7 @@ function skillAcc(k,skill){const a=(P.skills[k]||{})[skill]||[];if(!a.length)ret
 function skillN(k){const s=P.skills[k]||{};return SKILLS.reduce((n,sk)=>n+((s[sk]||[]).length),0)}
 function overallAcc(k){const s=P.skills[k]||{};let c=0,t=0;SKILLS.forEach(sk=>{(s[sk]||[]).forEach(v=>{t++;c+=v})});return t?c/t:0}
 function depth(k){
+  if(P.depthSet&&Object.prototype.hasOwnProperty.call(P.depthSet,k))return P.depthSet[k];
   const m=P.cards[k+':m'],r=P.cards[k+':r'];
   const n=skillN(k);
   if(!m&&!r&&n===0&&!P.seen[k])return 0;
@@ -2750,30 +2766,29 @@ function depth(k){
   if(m.reps>=1&&r.reps>=1&&iv>=1)return 2;
   return 1;
 }
-/** Jump a kanji to depth 5 (Mastered) so flashcards skip it as due. */
-function markMastered(k){
+function depthManual(k){return !!(P.depthSet&&Object.prototype.hasOwnProperty.call(P.depthSet,k))}
+function setDepth(k,n){
   if(!MAP[k]||isN5(k))return;
-  ensureCards(k);
-  const t=today();
-  [k+':m',k+':r'].forEach(id=>{
-    const c=P.cards[id];
-    c.iv=Math.max(c.iv||0,21);
-    c.reps=Math.max(c.reps||0,1);
-    c.ease=Math.max(c.ease||2.5,2.5);
-    c.due=t+c.iv;
-  });
+  P.depthSet=P.depthSet||{};
+  P.depthSet[k]=n;
   P.seen[k]=1;
-  P.skills[k]=P.skills[k]||{};
-  SKILLS.forEach(sk=>{P.skills[k][sk]=Array(6).fill(1)});
   save();
 }
-function unmarkMastered(k){
-  if(!MAP[k])return;
-  delete P.cards[k+':m'];
-  delete P.cards[k+':r'];
-  delete P.skills[k];
-  delete P.seen[k];
+function clearDepth(k){
+  if(!P.depthSet)return;
+  delete P.depthSet[k];
   save();
+}
+function depthPickerHTML(k,d){
+  const manual=depthManual(k);
+  const btns=[1,2,3,4,5].map(i=>{
+    const lbl=DLBL[i].replace(/^\d+\s+/,'');
+    return '<button type="button" class="depthbtn d'+i+(d===i?' on':'')+'" onclick="APP.setDepth(\''+k+'\','+i+')"><span class="dn">'+i+'</span><span class="dl">'+lbl+'</span></button>';
+  }).join('');
+  return '<div class="depthpick"><div class="hint">Tap your proficiency (1–5). Browse tiles use this color.</div>'+
+    '<div class="depthrow">'+btns+'</div>'+
+    (manual?'<button type="button" class="chip" style="margin-top:12px" onclick="APP.clearDepth(\''+k+'\')">Use auto from study progress</button>':'')+
+    '</div>';
 }
 
 /* ===== utils ===== */
@@ -3005,16 +3020,15 @@ APP.setFont=function(f){
   P.settings.glyphFont=f;save();applyFont();
   document.querySelectorAll('[data-font]').forEach(b=>b.classList.toggle('on',b.dataset.font===f));
 };
-APP.markMastered=function(k){
+APP.setDepth=function(k,n){
   if(isN5(k)){toast('N5 is reference only');return}
-  markMastered(k);
-  toast(k+' → Mastered (depth 5)');
+  setDepth(k,n);
+  toast(k+' → '+DLBL[n]);
   render();
 };
-APP.unmarkMastered=function(k){
-  if(isN5(k))return;
-  unmarkMastered(k);
-  toast(k+' reset to New');
+APP.clearDepth=function(k){
+  clearDepth(k);
+  toast(k+' uses auto depth again');
   render();
 };
 
@@ -3095,7 +3109,8 @@ function gridHTMLFor(list,totalLbl){
     const on=CMP_ON&&CMP_SEL.indexOf(d.k)>=0;
     const dim=CMP_ON&&CMP_SEL.length>=2&&!on;
     const click=CMP_ON?'APP.cmpToggle(\''+d.k+'\')':'APP.go(\'#/kanji/'+encodeURIComponent(d.k)+'\')';
-    return '<button type="button" class="kcell jp'+(on?' sel':'')+(dim?' dimsel':'')+'" onclick="'+click+'">'+d.k+(d.lvl==='n5'?'':depthDot(depth(d.k)))+'</button>';
+    const dep=d.lvl==='n5'?'':' d'+depth(d.k);
+    return '<button type="button" class="kcell jp'+dep+(on?' sel':'')+(dim?' dimsel':'')+'" onclick="'+click+'">'+d.k+'</button>';
   }).join('');
   return '<div class="muted small" style="margin-bottom:8px">'+list.length+' of '+totalLbl+(CMP_ON?' &middot; pick 2 to compare':'')+'</div><div class="kgrid">'+cells+'</div>';
 }
@@ -3242,12 +3257,13 @@ function vKanji(k){
   }).join('')+'</div>':'<div class="muted small">No close lookalikes tracked.</div>';
   const depthInner=n5
     ?'<div class="muted small">N5 reference character — not tracked in flashcards or drills.</div>'
-    :skillbarsHTML(k)+((m&&m.reps)||((r&&r.reps))?
+    :depthPickerHTML(k,d)+
+      '<div style="height:14px"></div>'+
+      skillbarsHTML(k)+
+      ((m&&m.reps)||((r&&r.reps))?
       '<div class="muted small" style="margin-top:6px">SRS: meaning '+(m?m.iv+'d':'&ndash;')+' &middot; reading '+(r?r.iv+'d':'&ndash;')+' &middot; attempts '+skillN(k)+'</div>':
       '<div class="muted small" style="margin-top:6px">Not in flashcards yet. It joins automatically as a new card, or drill it below.</div>')+
-      (d>=5
-        ?'<button class="bigbtn ghost" style="margin-top:12px" onclick="APP.unmarkMastered(\''+k+'\')">Mastered — tap to reset to New</button>'
-        :'<button class="bigbtn ghost" style="margin-top:12px" onclick="APP.markMastered(\''+k+'\')">★ Already know — mark Mastered</button>');
+      (depthManual(k)?'<div class="muted small" style="margin-top:6px">Browse color = your rating. Stats use this too.</div>':'');
   const lvlBadge=n5?'<div class="eyebrow" style="margin-bottom:8px">N5 · Reference</div>':'';
   const foot=n5?'':'<button class="bigbtn" onclick="APP.go(\'#/drill/'+encodeURIComponent(e.k)+'\')">この漢字をドリル Drill this kanji</button>';
   return head(e.k,true)+
@@ -3258,7 +3274,7 @@ function vKanji(k){
     '<div class="readrow">'+onP+kunP+'</div>'+
     '<div class="fontrow">'+Object.keys(FONTS).map(f=>'<button class="chip'+((P.settings.glyphFont||'gothic')===f?' on':'')+'" data-font="'+f+'" onclick="APP.setFont(\''+f+'\')">'+FONTS[f].jp+'<small>'+FONTS[f].en+'</small></button>').join('')+'</div>'+
   '</div>'+
-  sect('深さ',n5?'N5 reference':'Depth '+d+' of 5',depthInner)+
+  sect('深さ',n5?'N5 reference':'Depth '+d+' of 5'+(depthManual(k)?' · your rating':''),depthInner)+
   sect('成り立ち','Origin','<div class="etybox"><span class="etype">'+esc(e.etype)+'</span><div>'+esc(e.ety)+'</div></div><div class="mnbox">'+e.mn+'</div>')+
   sect('部首と部品','Radical and parts',compCards)+
   sect('語彙','Vocabulary',vocList)+
@@ -3510,14 +3526,14 @@ APP.doExport=function(){document.getElementById('io').value=JSON.stringify(P);do
 APP.doImport=function(){
   const t=document.getElementById('io').value.trim();
   if(!t){document.getElementById('ionote').textContent='Paste a backup into the box first.';return}
-  try{const o=JSON.parse(t);if(!o.cards)throw 0;P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);save();document.getElementById('ionote').textContent='Imported. Your progress is restored.';}
+  try{const o=JSON.parse(t);if(!o.cards)throw 0;P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},depthSet:{},v:1},o);save();document.getElementById('ionote').textContent='Imported. Your progress is restored.';}
   catch(e){document.getElementById('ionote').textContent='That did not look like a valid backup.'}
   applyFont();
 };
 APP.doReset=function(){
   const b=document.getElementById('resetbtn');
   if(!armReset){armReset=true;b.textContent='Tap again to confirm reset';return}
-  P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:P.settings.newPerDay,glyphFont:P.settings.glyphFont},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1};
+  P={cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:P.settings.newPerDay,glyphFont:P.settings.glyphFont},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},depthSet:{},v:1};
   armReset=false;S=null;Q=null;R=null;save();render();
 };
 
@@ -3563,9 +3579,10 @@ window.addEventListener('hashchange',render);
   fixPathRoute();
   try{
     const v=await store.load();
-    if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},v:1},o);
+    if(v){const o=JSON.parse(v);P=Object.assign({cards:{},skills:{},seen:{},intro:{date:'',count:0},settings:{newPerDay:8},readScores:{},studySets:{cards:{sel:null,ok:false},ex:{sel:null,ok:false}},depthSet:{},v:1},o);
       P.settings=Object.assign({newPerDay:8,glyphFont:'gothic'},P.settings);
-      P.studySets=Object.assign({cards:{sel:null,ok:false},ex:{sel:null,ok:false}},P.studySets||{})}
+      P.studySets=Object.assign({cards:{sel:null,ok:false},ex:{sel:null,ok:false}},P.studySets||{});
+      P.depthSet=Object.assign({},P.depthSet||{})}
   }catch(e){}
   if(!P.settings.glyphFont)P.settings.glyphFont='gothic';
   applyFont();
