@@ -83,6 +83,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;bac
   transition:transform .15s,background .25s,border-color .25s,color .25s,opacity .4s;touch-action:manipulation}
 .tile:active{transform:scale(.95)}
 .tile.word{font-size:1.15rem;height:64px;padding:0 20px;min-width:0}
+.tile.kana{font-size:1.7rem;height:72px;padding:0 16px;min-width:0}
 .tile.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .tile.ok2{background:var(--cool);border-color:var(--cool);color:#fff}
 .tile.dim{opacity:.35;pointer-events:none}
@@ -221,8 +222,8 @@ const ART = {
     <rect x="132" y="124" width="47" height="146" fill="${RED}" stroke="${INK}" stroke-width="4"/>
     <rect x="181" y="124" width="47" height="146" fill="${RED}" stroke="${INK}" stroke-width="4"/>
     <circle cx="168" cy="200" r="5" fill="${INK}"/><circle cx="192" cy="200" r="5" fill="${INK}"/>
-    <g class="waves" opacity="0" fill="none" stroke="${RED}" stroke-width="4" stroke-linecap="round">
-      <path d="M196 156 q10 22 0 44"/><path d="M208 148 q16 30 0 60"/><path d="M220 140 q22 38 0 76"/>
+    <g class="waves" opacity="0" fill="none" stroke="var(--paper)" stroke-width="4" stroke-linecap="round">
+      <path d="M148 170 q-8 11 0 22"/><path d="M158 162 q-14 19 0 38"/><path d="M168 154 q-20 27 0 54"/>
     </g>
     <g id="person">
       <rect x="92" y="200" width="36" height="74" rx="11" fill="${BLUE}" stroke="${INK}" stroke-width="4"/>
@@ -262,9 +263,9 @@ const ART = {
       <path d="M108 60 C128 56 140 78 134 100 C130 114 120 122 110 118" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
     </svg>`,
     `<svg class="frame" viewBox="0 0 200 200">
-      <path d="M62 46 C82 32 120 32 140 46 V148 C140 160 130 166 120 164" ${stroke}/>
-      <path d="M66 46 V172" ${stroke}/>
-      <path d="M66 84 H136" ${stroke}/><path d="M66 118 H136" ${stroke}/>
+      <path d="M64 50 C72 28 130 24 142 54 C152 76 148 112 138 140 C132 156 120 166 106 160" ${stroke}/>
+      <path d="M66 50 C60 90 62 132 66 174" ${stroke}/>
+      <path d="M68 88 C90 80 118 80 138 90" ${stroke}/><path d="M68 120 C90 112 116 112 136 122" ${stroke}/>
     </svg>`,
     `<svg class="frame" viewBox="0 0 200 200">${glyph('耳')}</svg>`,
   ],
@@ -274,7 +275,7 @@ const ART = {
   <svg class="base" viewBox="0 0 200 200">
     <g class="glyph" data-base>${glyph('門')}</g>
     <g class="glyph" data-result opacity="0">${glyph('聞')}</g>
-    <rect class="drop" data-drop x="66" y="98" width="68" height="74" rx="10" fill="none" stroke="${RED}" stroke-width="3.5" stroke-dasharray="7 7"/>
+    <rect class="drop" data-drop x="64" y="92" width="64" height="68" rx="10" fill="none" stroke="${RED}" stroke-width="3.5" stroke-dasharray="7 7"/>
   </svg>`,
 
   // Step 6: speech bubble and folded newspaper.
@@ -293,9 +294,9 @@ const ART = {
         <rect x="112" y="174" width="88" height="6"/><rect x="112" y="188" width="60" height="6"/></g>
     </g>
     <rect x="24" y="42" width="192" height="88" fill="#fff" stroke="${INK}" stroke-width="5"/>
-    <text class="kanji" x="68" y="86" font-size="46" text-anchor="middle" dominant-baseline="central" fill="${INK}">${word}</text>
-    <g fill="${INK}"><rect x="122" y="60" width="78" height="6"/><rect x="122" y="74" width="78" height="6"/>
-      <rect x="122" y="88" width="78" height="6"/><rect x="122" y="102" width="52" height="6"/></g>
+    <text class="kanji" x="76" y="86" font-size="40" text-anchor="middle" dominant-baseline="central" fill="${INK}">${word}</text>
+    <g fill="${INK}"><rect x="128" y="60" width="72" height="6"/><rect x="128" y="74" width="72" height="6"/>
+      <rect x="128" y="88" width="72" height="6"/><rect x="128" y="102" width="48" height="6"/></g>
     <line x1="24" y1="130" x2="216" y2="130" stroke="${INK}" stroke-width="5"/>
   </svg>`,
 
@@ -493,12 +494,12 @@ stage.addEventListener('click', e => {
 sentenceEl.addEventListener('click', () => { if (stepDone && index < LESSON.steps.length - 1) render(index + 1); });
 
 /* ---- generic option tiles: returns a promise resolving when the answer is picked ---- */
-function tiles(options, answer, { word = false, grid = false, onWrong, onRight } = {}) {
+function tiles(options, answer, { word = false, kana = false, grid = false, onWrong, onRight } = {}) {
   const wrap = el('div', (grid ? 'grid2' : 'tiles') + ' interactive');
   const correct = Array.isArray(answer) ? answer : [answer];
   const p = new Promise(resolve => {
     options.forEach(opt => {
-      const t = el('button', 'tile' + (word ? ' word' : ' kanji'), opt);
+      const t = el('button', 'tile ' + (word ? 'word' : kana ? 'kana kanji' : 'kanji'), opt);
       t.onclick = () => {
         if (wrap.dataset.locked) return;
         if (correct.includes(opt)) {
@@ -661,6 +662,7 @@ const RENDERERS = {
     ui.say(step.text);
 
     const { wrap, promise } = tiles(step.options, step.correct, {
+      kana: true,
       onRight: async (t, opt) => {
         const other = step.correct.filter(c => c !== opt);
         const readingEl = $('.reading', target);
